@@ -1,32 +1,32 @@
 :root {
 	color-scheme: light;
-	--bg: #f8f9fb;
+	--bg: #f8fafc;
 	--surface: #ffffff;
-	--surface-2: #f3f4f6;
-	--surface-3: #eef0f4;
-	--text: #151927;
-	--muted: #667085;
-	--line: #e5e7eb;
-	--line-strong: #d1d5db;
-	--placeholder: #98a2b3;
-	--primary: #8023c3;
-	--primary-strong: #681aa2;
-	--accent: #8023c3;
-	--accent-soft: #f4e8ff;
-	--warn: #b7791f;
-	--warn-bg: #fff7e6;
-	--info: #175cd3;
-	--info-bg: #eff8ff;
-	--bad: #b42318;
-	--bad-bg: #fff0ee;
-	--ok: #027a48;
-	--ok-bg: #ecfdf3;
-	--shadow: 0 1px 2px rgb(16 24 40 / 0.035);
-	--shadow-popover: 0 6px 14px rgb(16 24 40 / 0.08);
-	--shadow-drawer: -8px 0 18px rgb(16 24 40 / 0.08);
+	--surface-2: #f1f5f9;
+	--surface-3: #e2e8f0;
+	--text: #0f172a;
+	--muted: #475569;
+	--line: #e2e8f0;
+	--line-strong: #cbd5e1;
+	--placeholder: #94a3b8;
+	--primary: #0f766e;
+	--primary-strong: #115e59;
+	--accent: #0d9488;
+	--accent-soft: #ccfbf1;
+	--warn: #b45309;
+	--warn-bg: #fffbeb;
+	--info: #1d4ed8;
+	--info-bg: #eff6ff;
+	--bad: #b91c1c;
+	--bad-bg: #fef2f2;
+	--ok: #15803d;
+	--ok-bg: #f0fdf4;
+	--shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+	--shadow-popover: 0 8px 22px rgb(15 23 42 / 0.09);
+	--shadow-drawer: -10px 0 28px rgb(15 23 42 / 0.1);
 	--font-sans:
-		'Geist Sans', 'Aptos', 'Segoe UI Variable', 'Segoe UI', ui-sans-serif, system-ui, -apple-system,
-		BlinkMacSystemFont, sans-serif;
+		'Noto Sans KR Variable', 'Noto Sans KR', 'Geist Sans', 'Aptos', 'Segoe UI Variable', 'Segoe UI',
+		ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 	--mono:
 		'DejaVu Sans Mono', 'Liberation Mono', 'SFMono-Regular', 'Cascadia Code', 'Roboto Mono',
 		Consolas, monospace;
@@ -53,27 +53,27 @@ samp,
 
 :root[data-theme='dark'] {
 	color-scheme: dark;
-	--bg: #030712;
-	--surface: #10141f;
-	--surface-2: #1c2029;
-	--surface-3: #242938;
-	--text: #f2f5f8;
-	--muted: #9ca3af;
-	--line: #1f2937;
-	--line-strong: #374151;
-	--placeholder: #6b7280;
-	--primary: #a855f7;
-	--primary-strong: #c084fc;
-	--accent: #a855f7;
-	--accent-soft: #251333;
-	--warn: #f2bd5c;
-	--warn-bg: #2b2315;
-	--info: #84caff;
-	--info-bg: #102235;
-	--bad: #ff8a7a;
-	--bad-bg: #2c1918;
-	--ok: #63d799;
-	--ok-bg: #14251b;
+	--bg: #0b1220;
+	--surface: #0f172a;
+	--surface-2: #172033;
+	--surface-3: #1e293b;
+	--text: #f8fafc;
+	--muted: #94a3b8;
+	--line: #1e293b;
+	--line-strong: #334155;
+	--placeholder: #64748b;
+	--primary: #2dd4bf;
+	--primary-strong: #5eead4;
+	--accent: #2dd4bf;
+	--accent-soft: #153e3c;
+	--warn: #fbbf24;
+	--warn-bg: #3b2a12;
+	--info: #60a5fa;
+	--info-bg: #172554;
+	--bad: #f87171;
+	--bad-bg: #3f171b;
+	--ok: #4ade80;
+	--ok-bg: #14351f;
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.16);
 	--shadow-popover: 0 8px 18px rgb(0 0 0 / 0.24);
 	--shadow-drawer: -8px 0 18px rgb(0 0 0 / 0.22);

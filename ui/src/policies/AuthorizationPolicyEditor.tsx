@@ -95,7 +95,7 @@ export function AuthorizationPolicyEditor(props: {
 		setErrors(validationErrors);
 		if (Object.keys(validationErrors).length) {
 			setEditingIndex(Number(Object.keys(validationErrors)[0]));
-			setSummaryError('Fix the highlighted authorization rules before saving.');
+			setSummaryError('강조 표시된 접근 제어 규칙을 수정한 뒤 저장하세요.');
 			return;
 		}
 		setSummaryError(null);
@@ -113,25 +113,23 @@ export function AuthorizationPolicyEditor(props: {
 		>
 			<div className="authz-rule-toolbar">
 				<div>
-					<strong>
-						{rules.length} {rules.length === 1 ? 'rule' : 'rules'}
-					</strong>
-					<small>Each CEL expression is saved under allow, deny, or require.</small>
+					<strong>규칙 {rules.length}개</strong>
+					<small>각 CEL 표현식은 허용, 차단 또는 필수 규칙으로 저장됩니다.</small>
 				</div>
 				<button className="button" type="button" onClick={addRule}>
 					<Plus size={16} />
-					Add rule
+					규칙 추가
 				</button>
 			</div>
 
 			{rules.length === 0 ? (
 				<EmptyState
-					title="No authorization rules"
-					description="Add a CEL expression to start authorizing requests."
+					title="설정된 접근 제어 규칙이 없습니다"
+					description="요청 접근을 제어할 CEL 표현식을 추가하세요."
 					action={
 						<button className="button primary" type="button" onClick={addRule}>
 							<Plus size={16} />
-							Add rule
+							규칙 추가
 						</button>
 					}
 				/>

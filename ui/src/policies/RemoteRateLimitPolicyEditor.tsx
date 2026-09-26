@@ -241,7 +241,7 @@ function DescriptorEditor(props: {
 		<div className={props.invalid ? 'remote-descriptor-card invalid' : 'remote-descriptor-card'}>
 			<div className="remote-descriptor-header">
 				<div>
-					<strong>Descriptor {props.index + 1}</strong>
+					<strong>한도 조건 {props.index + 1}</strong>
 					<small>
 						{props.descriptor.entries.length}{' '}
 						{props.descriptor.entries.length === 1 ? 'entry' : 'entries'}
@@ -261,7 +261,7 @@ function DescriptorEditor(props: {
 				tooltip={props.help.field<DescriptorEntry>('DescriptorEntry', 'type')}
 			>
 				<EnumSelector<DescriptorType>
-					ariaLabel={`Descriptor ${props.index + 1} type`}
+					ariaLabel={`한도 조건 ${props.index + 1} 유형`}
 					value={props.descriptor.type}
 					options={[
 						{
@@ -399,15 +399,15 @@ function isConditional(value: unknown) {
 
 function validate(args: { domain: string; target: TargetDraft; descriptors: DescriptorDraft[] }) {
 	const errors: string[] = [];
-	if (!args.domain.trim()) errors.push('Domain is required.');
-	if (!('host' in args.target) || !args.target.host.trim()) errors.push('Host is required.');
+	if (!args.domain.trim()) errors.push('도메인을 입력해 주세요.');
+	if (!('host' in args.target) || !args.target.host.trim()) errors.push('호스트를 입력해 주세요.');
 	if (
 		!args.descriptors.length ||
 		args.descriptors.every(descriptor =>
 			descriptor.entries.every(entry => !entry.key.trim() || !entry.value.trim())
 		)
 	) {
-		errors.push('At least one descriptor entry is required.');
+		errors.push('한도 조건 항목을 하나 이상 입력해 주세요.');
 	}
 	return errors;
 }

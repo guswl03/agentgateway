@@ -151,38 +151,18 @@ test('log settings migrate prompt logging to the database LLM mode', async ({ pa
 	});
 });
 
-test('onboards all surfaces from a completely empty config', async ({ page }) => {
+test('automatically enables the project traffic surface from a completely empty config', async ({
+	page
+}) => {
 	const gateway = await mockGateway(page, {});
 	await page.goto('/');
-
-	await expect(page.getByRole('heading', { name: 'Welcome to Agentgateway' })).toBeVisible();
-	await expect(page.getByRole('button', { name: /LLM/ })).toBeVisible();
-	await expect(page.getByRole('button', { name: /MCP/ })).toBeVisible();
-	await page.getByRole('button', { name: /APIs/ }).click();
 
 	await expect.poll(() => gateway.postedConfigs.length).toBe(1);
 	expect(gateway.postedConfigs[0].gateways).toMatchObject({
 		public: { port: 8080 }
 	});
-	await expect(page.getByRole('heading', { name: 'Welcome to Agentgateway' })).toBeVisible();
-	await expect(page.locator('.nav-list').getByRole('link', { name: 'Gateways' })).toBeVisible();
-
-	await page.getByRole('button', { name: /LLM/ }).click();
-	await expect.poll(() => gateway.postedConfigs.length).toBe(2);
-	expect(gateway.postedConfigs[1].llm).toEqual({
-		gateways: 'public'
-	});
-	await expect(page.getByRole('heading', { name: 'Welcome to Agentgateway' })).toBeVisible();
-
-	await page.getByRole('button', { name: /MCP/ }).click();
-	await expect.poll(() => gateway.postedConfigs.length).toBe(3);
-	expect(gateway.postedConfigs[2].mcp).toEqual({
-		gateways: 'public'
-	});
-	await expect(page.getByRole('heading', { name: 'Welcome to Agentgateway' })).toBeVisible();
-	await expect(page.getByText('3 of 3 enabled')).toBeVisible();
-	await page.getByRole('button', { name: 'Continue' }).click();
 	await expect(page.getByRole('heading', { name: 'Gateway Overview' })).toBeVisible();
+	await expect(page.locator('.nav-list').getByRole('link', { name: 'Gateways' })).toBeVisible();
 });
 
 test('enforces default gateway constraints', async ({ page }) => {
@@ -318,8 +298,10 @@ test('raw configuration lists hybrid database resources with masked keys', async
 	await expect(page.locator('body')).not.toContainText('agw_sk_supersecret123');
 });
 
-test('onboards LLM and MCP onto the UI gateway when present', async ({ page }) => {
-	const gateway = await mockGateway(page, {
+test('skips capability selection when the project traffic surface is already present', async ({
+	page
+}) => {
+	await mockGateway(page, {
 		config: {},
 		gateways: {
 			default: {
@@ -332,24 +314,8 @@ test('onboards LLM and MCP onto the UI gateway when present', async ({ page }) =
 	});
 	await page.goto('/');
 
-	await expect(page.getByRole('heading', { name: 'Welcome to Agentgateway' })).toBeVisible();
-	await expect(page.getByRole('button', { name: /APIs enabled/ })).toBeDisabled();
-
-	await page.getByRole('button', { name: /LLM/ }).click();
-	await expect.poll(() => gateway.postedConfigs.length).toBe(1);
-	expect(gateway.postedConfigs[0].llm).toMatchObject({
-		gateways: 'default'
-	});
-	expect(gateway.postedConfigs[0].llm).not.toHaveProperty('port');
-
-	await page.getByRole('button', { name: /MCP/ }).click();
-	await expect.poll(() => gateway.postedConfigs.length).toBe(2);
-	expect(gateway.postedConfigs[1].mcp).toMatchObject({
-		gateways: 'default'
-	});
-	expect(gateway.postedConfigs[1].mcp).not.toHaveProperty('port');
-
-	await expect(page.getByRole('button', { name: /APIs enabled/ })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Gateway Overview' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Welcome to Agentgateway' })).toHaveCount(0);
 	await expect(page.locator('.nav-list').getByRole('link', { name: 'Gateways' })).toBeVisible();
 });
 

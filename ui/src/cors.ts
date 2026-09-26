@@ -12,11 +12,18 @@ export function corsNeedsUpdate(
 	origin = currentOrigin()
 ) {
 	if (!cors) return true;
+	const requiredHeaders =
+		target === 'mcp'
+			? ['authorization', 'content-type', 'mcp-session-id', 'mcp-protocol-version']
+			: ['authorization', 'content-type'];
+	const allowsRequiredHeaders =
+		hasValue(cors.allowHeaders, '*') ||
+		requiredHeaders.every(header => hasValue(cors.allowHeaders, header));
 	return (
 		!hasValue(cors.allowOrigins, origin) ||
 		!hasValue(cors.allowMethods, 'GET') ||
 		!hasValue(cors.allowMethods, 'POST') ||
-		!hasValue(cors.allowHeaders, '*') ||
+		!allowsRequiredHeaders ||
 		(target === 'mcp' && !hasValue(cors.exposeHeaders, 'Mcp-Session-Id'))
 	);
 }

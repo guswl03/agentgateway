@@ -235,16 +235,16 @@ export function ClientSetupPage() {
 					) : null}
 					<div className="client-setup-summary">
 						<div>
-							<span>Base URL</span>
+							<span>기본 URL</span>
 							<code>{effectiveBaseUrl.replace(/\/$/, '')}/v1</code>
 						</div>
 						<div>
 							<span>Model</span>
-							<code>{requestModel || 'No model selected'}</code>
+							<code>{requestModel || '선택된 모델 없음'}</code>
 						</div>
 						<div>
-							<span>Auth</span>
-							<code>{apiKey ? `Bearer ${maskKey(apiKey)}` : 'None'}</code>
+							<span>인증</span>
+							<code>{apiKey ? `Bearer ${maskKey(apiKey)}` : '없음'}</code>
 						</div>
 					</div>
 				</Panel>
@@ -385,8 +385,7 @@ ${curlAuthorization}  -H "Content-Type: application/json" ${continuation}
 		{
 			id: 'claude-code',
 			title: 'Claude Code',
-			description:
-				'Use the gateway URL and key with Claude-compatible model routes when configured.',
+			description: 'Claude 호환 모델 라우트에서 게이트웨이 URL과 키를 사용합니다.',
 			icon: 'claude',
 			language: 'bash',
 			code: `export ANTHROPIC_AUTH_TOKEN=${JSON.stringify(requiredApiKey)}
@@ -397,22 +396,22 @@ claude --model ${JSON.stringify(args.model)}`
 		{
 			id: 'claude-desktop',
 			title: 'Claude Desktop',
-			description: 'Route Claude Desktop third-party inference through the gateway.',
+			description: 'Claude Desktop의 서드파티 추론 요청을 게이트웨이로 연결합니다.',
 			icon: 'claude',
 			steps: [
 				<>
-					Open Claude Desktop and enable developer mode: <strong>Help</strong> &gt;{' '}
-					<strong>Troubleshooting</strong> &gt; <strong>Enable Developer Mode</strong>.
+					Claude Desktop에서 <strong>Help</strong> &gt; <strong>Troubleshooting</strong> &gt;{' '}
+					<strong>Enable Developer Mode</strong>를 차례로 선택해 개발자 모드를 켭니다.
 				</>,
 				<>
-					Fully quit and relaunch Claude Desktop. A new <strong>Developer</strong> menu appears in
-					the menu bar.
+					Claude Desktop을 완전히 종료한 뒤 다시 실행합니다. 메뉴 막대에 <strong>Developer</strong>{' '}
+					메뉴가 나타납니다.
 				</>,
 				<>
-					Open <strong>Developer</strong> &gt; <strong>Configure Third-Party Inference</strong> &gt;{' '}
-					<strong>Gateway</strong>.
+					<strong>Developer</strong> &gt; <strong>Configure Third-Party Inference</strong> &gt;{' '}
+					<strong>Gateway</strong>를 차례로 엽니다.
 				</>,
-				<>Enter the gateway URL and virtual API key, save, then restart Claude Desktop.</>
+				<>게이트웨이 URL과 가상 API 키를 입력해 저장한 뒤 Claude Desktop을 다시 시작합니다.</>
 			],
 			language: 'text',
 			code: `Gateway URL: ${base}
@@ -421,8 +420,7 @@ API Key: ${requiredApiKey}`
 		{
 			id: 'codex',
 			title: 'Codex CLI',
-			description:
-				'Use OpenAI-compatible environment variables when running Codex against the gateway.',
+			description: 'Codex가 게이트웨이를 사용하도록 OpenAI 호환 환경 변수를 설정합니다.',
 			icon: 'codex',
 			language: 'bash',
 			code: `export OPENAI_API_KEY=${JSON.stringify(requiredApiKey)}
@@ -439,14 +437,14 @@ codex --model "${args.model}" \\
 		{
 			id: 'opencode',
 			title: 'OpenCode',
-			description: 'Configure OpenCode with an OpenAI-compatible gateway provider.',
+			description: 'OpenCode에 OpenAI 호환 게이트웨이 프로바이더를 설정합니다.',
 			icon: 'opencode',
 			steps: [
 				<>
-					Create this <code>opencode.json</code> in your project root.
+					프로젝트 최상위 폴더에 다음 <code>opencode.json</code> 파일을 만듭니다.
 				</>,
 				<>
-					Run <code>opencode</code> from the same directory.
+					같은 폴더에서 <code>opencode</code>를 실행합니다.
 				</>
 			],
 			language: 'bash',
@@ -477,19 +475,19 @@ opencode`
 		{
 			id: 'goose',
 			title: 'Goose',
-			description: "Point Goose's OpenAI provider at the gateway host and chat completions path.",
+			description: 'Goose의 OpenAI 프로바이더가 게이트웨이와 채팅 엔드포인트를 사용하도록 설정합니다.',
 			icon: 'goose',
 			steps: [
 				<>
-					Run <code>goose configure</code> &gt; <strong>Configure Providers</strong> &gt;{' '}
-					<strong>OpenAI</strong>, or export the variables below before starting a session.
+					<code>goose configure</code> &gt; <strong>Configure Providers</strong> &gt;{' '}
+					<strong>OpenAI</strong>를 차례로 선택하거나, 세션 시작 전에 아래 환경 변수를 설정합니다.
 				</>,
 				<>
-					To persist the settings, add them to <code>~/.config/goose/config.yaml</code>.
+					설정을 유지하려면 <code>~/.config/goose/config.yaml</code>에 추가합니다.
 				</>,
 				<>
-					<code>goose configure</code> cannot enter custom model names; set <code>GOOSE_MODEL</code>{' '}
-					in <code>config.yaml</code> for models missing from the provider list.
+					<code>goose configure</code>에서는 사용자 지정 모델 이름을 입력할 수 없습니다. 프로바이더
+					목록에 없는 모델은 <code>config.yaml</code>에서 <code>GOOSE_MODEL</code>을 설정하세요.
 				</>
 			],
 			language: 'bash',
@@ -505,18 +503,18 @@ goose session`
 		{
 			id: 'cursor',
 			title: 'Cursor',
-			description: "Use Cursor's OpenAI base URL override with a gateway model.",
+			description: 'Cursor의 OpenAI 기본 URL을 게이트웨이 모델 주소로 변경합니다.',
 			icon: 'cursor',
 			steps: [
 				<>
-					Open <strong>Cursor Settings</strong> &gt; <strong>Models</strong>.
+					<strong>Cursor Settings</strong> &gt; <strong>Models</strong>를 엽니다.
 				</>,
 				<>
-					Enable <strong>Override OpenAI Base URL</strong> and set it to <code>{base}</code>.
+					<strong>Override OpenAI Base URL</strong>을 켜고 <code>{base}</code>로 설정합니다.
 				</>,
 				<>
-					Add <code>{args.model}</code> as a custom model, then test from <strong>Ask</strong> or{' '}
-					<strong>Plan</strong> mode.
+					<code>{args.model}</code>을 사용자 지정 모델로 추가한 뒤 <strong>Ask</strong> 또는{' '}
+					<strong>Plan</strong> 모드에서 테스트합니다.
 				</>
 			],
 			language: 'text',
@@ -527,16 +525,16 @@ Custom model: ${args.model}`
 		{
 			id: 'github-copilot',
 			title: 'GitHub Copilot',
-			description: 'Configure VS Code Copilot Business or Enterprise to use the gateway proxy.',
+			description: 'VS Code Copilot Business 또는 Enterprise가 게이트웨이 프록시를 사용하도록 설정합니다.',
 			icon: 'copilot',
 			steps: [
 				<>
-					Open <strong>VS Code Settings</strong> and search for <code>github.copilot</code>.
+					<strong>VS Code Settings</strong>를 열고 <code>github.copilot</code>을 검색합니다.
 				</>,
 				<>
-					Edit <code>settings.json</code> and set the advanced proxy URL.
+					<code>settings.json</code>을 열어 고급 프록시 URL을 설정합니다.
 				</>,
-				<>Reload VS Code and test Copilot suggestions or chat.</>
+				<>VS Code를 다시 불러온 뒤 Copilot 코드 제안이나 채팅을 테스트합니다.</>
 			],
 			language: 'json',
 			code: `{
@@ -548,17 +546,17 @@ Custom model: ${args.model}`
 		{
 			id: 'windsurf',
 			title: 'Windsurf',
-			description: 'Route Windsurf traffic through the gateway HTTP proxy setting.',
+			description: 'Windsurf 트래픽이 게이트웨이 HTTP 프록시를 사용하도록 설정합니다.',
 			icon: 'windsurf',
 			steps: [
 				<>
-					Open <strong>Windsurf Settings</strong>.
+					<strong>Windsurf Settings</strong>를 엽니다.
 				</>,
 				<>
-					Search for <strong>Http: Proxy</strong>.
+					<strong>Http: Proxy</strong>를 검색합니다.
 				</>,
 				<>
-					Set the proxy URL to <code>{base}</code> and save.
+					프록시 URL을 <code>{base}</code>로 설정하고 저장합니다.
 				</>
 			],
 			language: 'text',
@@ -567,7 +565,7 @@ Custom model: ${args.model}`
 		{
 			id: 'openai-js',
 			title: 'OpenAI JavaScript SDK',
-			description: 'Use the gateway as an OpenAI-compatible chat completions endpoint.',
+			description: '게이트웨이를 OpenAI 호환 채팅 엔드포인트로 사용합니다.',
 			icon: 'codex',
 			provider: 'openai',
 			language: 'ts',
@@ -588,7 +586,7 @@ console.log(response.choices[0]?.message?.content);`
 		{
 			id: 'openai-python',
 			title: 'OpenAI Python SDK',
-			description: 'Point the Python SDK at the gateway listener.',
+			description: 'Python SDK가 게이트웨이 리스너를 사용하도록 설정합니다.',
 			icon: 'codex',
 			provider: 'openai',
 			language: 'python',

@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 
 import { routerBasePath } from '@/basePath';
 import { Shell } from '@/components/Shell';
+import { installKoreanUi } from '@/koreanUi';
 import { CelPage } from '@/pages/Cel';
 import { ClientSetupPage } from '@/pages/ClientSetup';
 import { CostsPage } from '@/pages/Costs';
@@ -25,6 +26,7 @@ import { RawSettingsPage } from '@/pages/RawSettings';
 import { TrafficGatewaysPage } from '@/pages/TrafficGateways';
 import { TrafficListenersPage } from '@/pages/TrafficListeners';
 import { TrafficRoutesPage } from '@/pages/TrafficRoutes';
+import '@fontsource-variable/noto-sans-kr';
 import '@fontsource/geist-sans/latin-400.css';
 import '@fontsource/geist-sans/latin-500.css';
 import '@fontsource/geist-sans/latin-600.css';
@@ -267,3 +269,5 @@ createRoot(document.getElementById('root')!).render(
 		</QueryClientProvider>
 	</React.StrictMode>
 );
+
+installKoreanUi();

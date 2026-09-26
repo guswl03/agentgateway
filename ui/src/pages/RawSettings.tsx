@@ -117,7 +117,7 @@ function UiGatewayPanel() {
 			</div>
 			{!gatewayOptions.length ? (
 				<StatusBanner state="warn" title="No gateways configured">
-					Add a gateway before exposing the UI.
+					UI를 외부에 공개하려면 먼저 게이트웨이를 추가하세요.
 				</StatusBanner>
 			) : null}
 			{update.isError ? (

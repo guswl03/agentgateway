@@ -197,8 +197,8 @@ export function McpPlaygroundPage() {
 						)
 					}
 				>
-					Add {currentOrigin()} to the MCP CORS policy and expose Mcp-Session-Id so this playground
-					can keep a browser session.
+					브라우저 세션을 유지할 수 있도록 MCP CORS 정책에 다음 주소를 추가하고{' '}
+					Mcp-Session-Id 헤더를 노출하세요: {currentOrigin()}
 				</StatusBanner>
 			) : null}
 			{targets.length === 0 ? (

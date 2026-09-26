@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Bot, Network, Server, Settings } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { McpSettingsResource } from '@/api/configResourcesApi';
 import { refreshBaseCosts } from '@/api/costsApi';
@@ -25,6 +25,7 @@ import { trafficStats } from '@/traffic';
 import type { GatewayConfig } from '@/types';
 
 const uiAuthPolicyKeys = ['oidc', 'jwtAuth', 'extAuthz', 'basicAuth', 'apiKey', 'authorization'];
+const projectStartupSurface = 'traffic';
 
 export function HomePage() {
 	const mode = useConfigDumpMode();
@@ -53,7 +54,7 @@ export function HomePage() {
 	const enable = useEnableSurface();
 	const upsertResource = useUpsertConfigResource();
 	const help = useSchemaHelp();
-	const [locallyEnabled, setLocallyEnabled] = useState<Set<StartupSurface>>(() => new Set());
+	const projectSurfaceInitializationStarted = useRef(false);
 	const hasLlm = Boolean(
 		config.data?.llm || models.length || virtualModels.length || providers.length
 	);
@@ -74,22 +75,23 @@ export function HomePage() {
 		!runtime.isLoading && !runtime.isError && uiExposedWithoutAuth(config.data);
 	const callableModels = models.length + virtualModels.length;
 	const traffic = trafficStats(trafficData.data);
-	const [startupEvaluated, setStartupEvaluated] = useState(false);
-	const [startupFlow, setStartupFlow] = useState(false);
 	const [costRefreshError, setCostRefreshError] = useState<string | null>(null);
 	const [llmSettingsOpen, setLlmSettingsOpen] = useState(false);
 	const [mcpSettingsOpen, setMcpSettingsOpen] = useState(false);
-	const showStartup = Boolean(config.data && startupFlow);
-	const selectedSurfaces =
-		Number(hasLlm || locallyEnabled.has('llm')) +
-		Number(hasMcp || locallyEnabled.has('mcp')) +
-		Number(hasTraffic || locallyEnabled.has('apis'));
 
 	useEffect(() => {
-		if (!config.data || pageDataLoading || pageDataError || startupEvaluated) return;
-		setStartupFlow(!hasLlm && !hasMcp && (!hasTraffic || isDefaultUiGatewayScaffold(config.data)));
-		setStartupEvaluated(true);
-	}, [config.data, pageDataError, pageDataLoading, hasLlm, hasMcp, hasTraffic, startupEvaluated]);
+		if (
+			!config.data ||
+			pageDataLoading ||
+			pageDataError ||
+			hasTraffic ||
+			projectSurfaceInitializationStarted.current
+		) {
+			return;
+		}
+		projectSurfaceInitializationStarted.current = true;
+		enable.mutate({ surface: projectStartupSurface });
+	}, [config.data, enable, hasTraffic, pageDataError, pageDataLoading]);
 
 	async function enableSurface(surface: StartupSurface) {
 		setCostRefreshError(null);
@@ -97,7 +99,6 @@ export function HomePage() {
 			const { hybrid } = await enable.mutateAsync({
 				surface: surface === 'apis' ? 'traffic' : surface
 			});
-			setLocallyEnabled(current => new Set(current).add(surface));
 			if (surface === 'llm') {
 				try {
 					if (hybrid) await refreshBaseCosts();
@@ -127,93 +128,6 @@ export function HomePage() {
 				<PageHeader title="Gateway Overview" />
 				<ReadonlyModeBanner />
 				<TrafficDumpOverview dump={mode.data?.dump} />
-			</div>
-		);
-	}
-
-	if (showStartup) {
-		return (
-			// biome-ignore lint/a11y/noStaticElementInteractions: Existing lint violation; remove this suppression when the underlying issue is fixed.
-			// biome-ignore lint/a11y/useKeyWithClickEvents: Existing lint violation; remove this suppression when the underlying issue is fixed.
-			<div className="startup-shell" onClick={() => setStartupFlow(false)}>
-				{/** biome-ignore lint/a11y/useKeyWithClickEvents: Existing lint violation; remove this suppression when the underlying issue is fixed. */}
-				<section
-					className="startup-panel"
-					role="dialog"
-					aria-modal="true"
-					aria-labelledby="startup-title"
-					onClick={event => event.stopPropagation()}
-				>
-					<div className="startup-copy">
-						<h2 id="startup-title">Welcome to Agentgateway</h2>
-						<p>
-							Agentgateway is a gateway that can route, secure, and observe LLM, MCP, and
-							traditional API traffic. Select one or more capabilities to enable, then continue.
-						</p>
-					</div>
-
-					{pageDataError ? (
-						<StatusBanner state="bad" title="Configuration API unavailable">
-							{pageDataError.message}
-						</StatusBanner>
-					) : null}
-					{enable.isError || update.isError ? (
-						<StatusBanner state="bad" title="Save failed">
-							{enable.error?.message ?? update.error?.message}
-						</StatusBanner>
-					) : null}
-					{costRefreshError ? (
-						<StatusBanner state="warn" title="Cost catalog refresh failed">
-							{costRefreshError}
-						</StatusBanner>
-					) : null}
-
-					<div className="startup-chip-grid">
-						<StartupChip
-							label="LLM"
-							description="Models, keys, policies, and chat testing."
-							enabled={hasLlm || locallyEnabled.has('llm')}
-							disabled={enable.isPending || update.isPending}
-							icon={<Bot size={24} />}
-							onClick={() => void enableSurface('llm')}
-						/>
-						<StartupChip
-							label="MCP"
-							description="Servers, tools, and MCP playground flows."
-							enabled={hasMcp || locallyEnabled.has('mcp')}
-							disabled={enable.isPending || update.isPending}
-							icon={<Server size={24} />}
-							onClick={() => void enableSurface('mcp')}
-						/>
-						<StartupChip
-							label="APIs"
-							description="HTTP and TCP listeners, routes, and policy controls."
-							enabled={hasTraffic || locallyEnabled.has('apis')}
-							disabled={enable.isPending || update.isPending}
-							icon={<Network size={24} />}
-							onClick={() => void enableSurface('apis')}
-						/>
-					</div>
-
-					{selectedSurfaces > 0 ? (
-						<div className="startup-actions">
-							<span>{selectedSurfaces} of 3 enabled</span>
-							<button
-								className="button primary"
-								type="button"
-								onClick={() => setStartupFlow(false)}
-							>
-								Continue
-							</button>
-						</div>
-					) : (
-						<div className="startup-actions">
-							<button className="button" type="button" onClick={() => setStartupFlow(false)}>
-								Skip setup
-							</button>
-						</div>
-					)}
-				</section>
 			</div>
 		);
 	}
@@ -416,38 +330,7 @@ function uiGateway(config: GatewayConfig | null | undefined) {
 	return config?.ui && config.gateways?.default ? 'default' : undefined;
 }
 
-function isDefaultUiGatewayScaffold(config: GatewayConfig) {
-	if (!config.ui || uiGateway(config) !== 'default') return false;
-	if (config.binds?.length || config.routes?.length || config.tcpRoutes?.length) {
-		return false;
-	}
-	const gatewayNames = Object.keys(config.gateways ?? {});
-	return gatewayNames.length === 1 && gatewayNames[0] === 'default';
-}
-
 type StartupSurface = 'llm' | 'mcp' | 'apis';
-
-function StartupChip(props: {
-	description: string;
-	disabled: boolean;
-	enabled: boolean;
-	icon: ReactNode;
-	label: string;
-	onClick: () => void;
-}) {
-	return (
-		<button
-			className={props.enabled ? 'startup-chip enabled' : 'startup-chip'}
-			type="button"
-			disabled={props.disabled || props.enabled}
-			onClick={props.onClick}
-		>
-			{props.icon}
-			<strong>{props.enabled ? `${props.label} enabled` : `Enable ${props.label}`}</strong>
-			<span>{props.description}</span>
-		</button>
-	);
-}
 
 function SurfaceRow(props: {
 	disabled: boolean;
@@ -473,7 +356,7 @@ function SurfaceRow(props: {
 					<span>Not enabled</span>
 				</div>
 				<button className="button" type="button" disabled={props.disabled} onClick={props.onEnable}>
-					Enable {props.title}
+					{props.title} 사용
 				</button>
 			</div>
 		);

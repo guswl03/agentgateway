@@ -135,7 +135,7 @@ export function ProvidersPage() {
 				) : providers.length === 0 ? (
 					<EmptyState
 						title="No shared providers configured"
-						description="Add a provider when multiple models should share the same credentials or upstream connection settings."
+						description="여러 모델이 같은 인증 정보나 업스트림 연결 설정을 공유한다면 프로바이더를 추가하세요."
 						action={
 							<button className="button primary" type="button" onClick={openNewProvider}>
 								<Plus size={16} />

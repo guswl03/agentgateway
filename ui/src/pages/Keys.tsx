@@ -222,7 +222,7 @@ export function KeysPage() {
 				) : !policy ? (
 					<EmptyState
 						title="API key authentication is disabled"
-						description="Enable API key authentication before provisioning virtual keys."
+						description="가상 API 키를 발급하려면 먼저 API 키 인증을 활성화하세요."
 						action={
 							<button
 								className="button primary"

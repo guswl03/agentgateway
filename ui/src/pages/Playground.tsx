@@ -153,7 +153,7 @@ export function PlaygroundPage() {
 	const [apiKeyMode, setApiKeyMode] = useState<'saved' | 'raw'>(() => storedApiKeyMode());
 	const [selectedKeyRef, setSelectedKeyRef] = useStoredStringState(storageKeys.selectedKey, '');
 	const [apiKey, setApiKey] = useState('');
-	const [system, setSystem] = useState('You are a concise assistant.');
+	const [system, setSystem] = useState('간결하고 명확하게 답변하세요.');
 	const [systemOpen, setSystemOpen] = useState(false);
 	const [prompt, setPrompt] = useState('');
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -515,8 +515,8 @@ export function PlaygroundPage() {
 						)
 					}
 				>
-					Add {currentOrigin()} to the LLM CORS policy so this playground can call the gateway from
-					the browser.
+					브라우저에서 게이트웨이를 호출할 수 있도록 LLM CORS 정책에 다음 주소를 추가하세요:{' '}
+					{currentOrigin()}
 				</StatusBanner>
 			) : null}
 			{needsMcpCors ? (
@@ -535,8 +535,8 @@ export function PlaygroundPage() {
 						)
 					}
 				>
-					Add {currentOrigin()} to the MCP CORS policy so the playground can list and call MCP tools
-					from the browser.
+					브라우저에서 MCP 도구를 조회하고 호출할 수 있도록 MCP CORS 정책에 다음 주소를 추가하세요:{' '}
+					{currentOrigin()}
 				</StatusBanner>
 			) : null}
 			{!configDataLoading && !configDataError && modelOptions.length === 0 ? (
@@ -665,11 +665,8 @@ export function PlaygroundPage() {
 										onChange={event => setMcpEnabled(event.target.checked)}
 									/>
 									<span>
-										<strong>
-											Include MCP tools ({mcpServerCount}{' '}
-											{mcpServerCount === 1 ? 'server' : 'servers'})
-										</strong>
-										<small>Let the model call tools exposed by the MCP gateway.</small>
+										<strong>MCP 도구 포함 (서버 {mcpServerCount}개)</strong>
+										<small>모델이 MCP 게이트웨이에 연결된 도구를 사용할 수 있게 합니다.</small>
 									</span>
 								</label>
 							</div>

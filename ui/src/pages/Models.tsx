@@ -303,7 +303,7 @@ export function ModelsPage() {
 				) : modelRows.length === 0 ? (
 					<EmptyState
 						title="No models configured"
-						description="Create the first model to make LLM traffic available through the gateway."
+						description="게이트웨이에서 LLM 요청을 처리하려면 첫 모델을 추가하세요."
 						action={
 							<div className="button-row">
 								<button className="button primary" type="button" onClick={openNewModel}>

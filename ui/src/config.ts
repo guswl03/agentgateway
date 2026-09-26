@@ -195,7 +195,7 @@ export function startupLlmConfig(
 	gateways = startupGatewayRefs(config)
 ): LlmConfig {
 	ensureStartupGateway(config, gateways);
-	return { gateways };
+	return { gateways, models: [] };
 }
 
 export function startupMcpConfig(
@@ -203,7 +203,7 @@ export function startupMcpConfig(
 	gateways = startupGatewayRefs(config)
 ): McpConfig {
 	ensureStartupGateway(config, gateways);
-	return { gateways };
+	return { gateways, targets: [] };
 }
 
 export function upsertModel(config: GatewayConfig, model: LlmModel, previousId?: string) {

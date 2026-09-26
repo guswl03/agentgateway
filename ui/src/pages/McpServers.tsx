@@ -136,7 +136,7 @@ export function McpServersPage() {
 				) : targets.length === 0 ? (
 					<EmptyState
 						title="No MCP servers configured"
-						description="Add a target so the gateway can expose MCP traffic."
+						description="게이트웨이가 MCP 요청을 처리할 수 있도록 대상을 추가하세요."
 						action={
 							<button className="button primary" type="button" onClick={openNewServer}>
 								<Server size={16} />

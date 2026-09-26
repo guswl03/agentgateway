@@ -98,15 +98,15 @@ export function McpGuardrailsPolicyEditor(props: {
 
 	function save() {
 		const nextErrors: Record<number, string> = {};
-		if (!processors.length) nextErrors[0] = 'At least one processor is required.';
+		if (!processors.length) nextErrors[0] = '처리기를 하나 이상 추가해야 합니다.';
 		processors.forEach((processor, index) => {
-			if (!processor.host.trim()) nextErrors[index] = 'Processor host is required.';
+			if (!processor.host.trim()) nextErrors[index] = '처리기 호스트를 입력해 주세요.';
 			if (!Object.keys(processor.methods).length)
-				nextErrors[index] = 'Add at least one MCP method match.';
+				nextErrors[index] = 'MCP 메서드 조건을 하나 이상 추가해 주세요.';
 		});
 		setErrors(nextErrors);
 		if (Object.keys(nextErrors).length) {
-			setError('Fix the highlighted processors before saving.');
+			setError('강조 표시된 처리기 설정을 수정한 뒤 저장하세요.');
 			return;
 		}
 		setError(null);
@@ -124,25 +124,23 @@ export function McpGuardrailsPolicyEditor(props: {
 		>
 			<div className="authz-rule-toolbar">
 				<div>
-					<strong>
-						{processors.length} {processors.length === 1 ? 'processor' : 'processors'}
-					</strong>
-					<small>Processors run in order; the first rejection stops the request.</small>
+					<strong>처리기 {processors.length}개</strong>
+					<small>처리기는 순서대로 실행되며 하나라도 차단하면 요청 처리가 중단됩니다.</small>
 				</div>
 				<button className="button" type="button" onClick={addProcessor}>
 					<Plus size={16} />
-					Add processor
+					처리기 추가
 				</button>
 			</div>
 
 			{processors.length === 0 ? (
 				<EmptyState
-					title="No MCP guardrail processors"
-					description="Add a remote policy processor to inspect MCP requests and responses."
+					title="설정된 MCP 가드레일 처리기가 없습니다"
+					description="MCP 요청과 응답을 검사할 외부 정책 처리기를 추가하세요."
 					action={
 						<button className="button primary" type="button" onClick={addProcessor}>
 							<Plus size={16} />
-							Add processor
+							처리기 추가
 						</button>
 					}
 				/>

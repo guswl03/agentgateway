@@ -213,11 +213,11 @@ export function TrafficGatewaysPage() {
 									<div>
 										<h3>{name}</h3>
 										<p>
-											Port {gatewayPortLabel(gateway)}
+											포트 {gatewayPortLabel(gateway)}
 											{gateway.listeners?.length
-												? `, ${gateway.listeners.length} named listeners`
+												? `, 이름 지정 리스너 ${gateway.listeners.length}개`
 												: ''}
-											, {gatewayPolicyCount(gateway)} policies
+											, 정책 {gatewayPolicyCount(gateway)}개
 										</p>
 									</div>
 									<div className="button-row">
