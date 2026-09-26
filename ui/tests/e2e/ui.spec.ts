@@ -162,6 +162,7 @@ test('automatically enables the project traffic surface from a completely empty 
 		public: { port: 8080 }
 	});
 	await expect(page.getByRole('heading', { name: 'Gateway Overview' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: '시스템 현황' })).toBeVisible();
 	await expect(page.locator('.nav-list').getByRole('link', { name: 'Gateways' })).toBeVisible();
 });
 
@@ -315,6 +316,7 @@ test('skips capability selection when the project traffic surface is already pre
 	await page.goto('/');
 
 	await expect(page.getByRole('heading', { name: 'Gateway Overview' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: '시스템 현황' })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'Welcome to Agentgateway' })).toHaveCount(0);
 	await expect(page.locator('.nav-list').getByRole('link', { name: 'Gateways' })).toBeVisible();
 });

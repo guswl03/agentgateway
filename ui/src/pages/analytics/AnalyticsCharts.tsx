@@ -378,23 +378,23 @@ export type AnalyticsTimelineRow = {
 } & Record<string, string | number>;
 
 const ANALYTICS_CHART_COLORS = [
-	'#2563eb',
-	'#7c3aed',
-	'#059669',
-	'#db2777',
-	'#d97706',
-	'#0891b2',
+	'#3730a3',
+	'#4338ca',
 	'#4f46e5',
-	'#65a30d',
-	'#be123c',
-	'#0f766e'
+	'#6366f1',
+	'#818cf8',
+	'#a5b4fc',
+	'#312e81',
+	'#5551dd',
+	'#7477ee',
+	'#9ca3f7'
 ];
 const PROVIDER_COLORS: Record<string, string> = {
-	anthropic: '#7c3aed',
-	bedrock: '#d97706',
+	anthropic: '#4338ca',
+	bedrock: '#818cf8',
 	custom: '#64748b',
-	google: '#059669',
-	openai: '#2563eb'
+	google: '#6366f1',
+	openai: '#4f46e5'
 };
 
 export function analyticsTimelineData(
