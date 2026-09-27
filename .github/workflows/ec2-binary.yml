@@ -51,7 +51,9 @@ jobs:
           corepack enable
 
       - name: Build UI and static Linux binary
-        run: make build CARGO_BUILD_ARGS="--target x86_64-unknown-linux-musl"
+        run: |
+          make ui
+          cargo +1.98.0 build --release --features ui --target x86_64-unknown-linux-musl
 
       - name: Prepare release files
         run: |
