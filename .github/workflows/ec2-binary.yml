@@ -45,6 +45,7 @@ jobs:
 
       - name: Install Linux build tools
         run: |
+          rustup target add x86_64-unknown-linux-musl --toolchain 1.98.0
           sudo apt-get update
           sudo apt-get install -y musl-tools
           corepack enable
