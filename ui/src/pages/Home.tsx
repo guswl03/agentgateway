@@ -5,7 +5,10 @@ import {
 	ArrowUpRight,
 	Bot,
 	CheckCircle2,
+	ChevronLeft,
+	ChevronRight,
 	CircleAlert,
+	CircleHelp,
 	Coins,
 	MessageSquareText,
 	Network,
@@ -47,6 +50,129 @@ const projectStartupSurface = 'traffic';
 
 type DashboardPeriod = '15m' | '1h' | '24h';
 type GatewayMapNode = 'request' | 'listener' | 'policy' | 'router' | 'llm' | 'mcp' | 'api';
+type DashboardTourTarget =
+	| 'welcome'
+	| 'navigation'
+	| 'commandbar'
+	| 'flow'
+	| 'metrics'
+	| 'services';
+
+const dashboardTourStorageKey = 'agentgateway.dashboard-tour.v2';
+const dashboardTourSteps: Array<{
+	description: string;
+	eyebrow: string;
+	focusSelector?: string;
+	items?: Array<{ description: string; label: string }>;
+	target: DashboardTourTarget;
+	title: string;
+}> = [
+	{
+		description:
+			'이 화면에서 게이트웨이 연결 상태, 처리 흐름, 사용량과 보안 점검 항목을 한 번에 확인할 수 있습니다.',
+		eyebrow: '시작 안내',
+		target: 'welcome',
+		title: '운영 대시보드를 둘러보세요'
+	},
+	{
+		description:
+			'왼쪽 메뉴의 LLM 영역에서는 모델 연결부터 접근 제어, 비용 기준까지 AI 요청 처리에 필요한 설정을 관리합니다.',
+		eyebrow: '메뉴 1 / 4',
+		focusSelector: '.nav-list a[href="/llm/models"]',
+		items: [
+			{ label: '모델', description: '실제로 호출할 LLM 모델을 등록하고 수정합니다.' },
+			{
+				label: '프로바이더',
+				description: '모델 제공자의 공용 인증 정보와 연결 방식을 설정합니다.'
+			},
+			{ label: '정책', description: '요청의 접근 권한과 트래픽 처리 규칙을 관리합니다.' },
+			{ label: '가드레일', description: '입력과 출력에 적용할 검증 및 안전 규칙을 설정합니다.' },
+			{ label: '가상 API 키', description: '클라이언트용 키를 발급하고 사용 권한을 구분합니다.' },
+			{ label: '비용', description: '모델별 가격과 비용 계산 기준을 관리합니다.' }
+		],
+		target: 'navigation',
+		title: 'LLM 구성 관리'
+	},
+	{
+		description:
+			'운영이 시작된 뒤에는 요청 현황을 살피고, 문제가 생긴 호출을 추적하거나 연결 상태를 직접 시험할 수 있습니다.',
+		eyebrow: '메뉴 2 / 4',
+		focusSelector: '.nav-list a[href="/llm/analytics"]',
+		items: [
+			{ label: '분석', description: '요청 수, 토큰, 비용의 시간대별 추이를 확인합니다.' },
+			{ label: '로그', description: '개별 요청과 응답의 처리 결과를 상세히 추적합니다.' },
+			{
+				label: '클라이언트 설정',
+				description: 'SDK와 게이트웨이 주소를 연결하는 방법을 안내합니다.'
+			},
+			{ label: '채팅 테스트', description: '설정한 모델이 정상 응답하는지 대화 형태로 시험합니다.' }
+		],
+		target: 'navigation',
+		title: '분석 · 로그 · 테스트'
+	},
+	{
+		description:
+			'MCP 도구 연결과 일반 API 트래픽 경로도 같은 관리자 화면에서 구성하고 상태를 확인할 수 있습니다.',
+		eyebrow: '메뉴 3 / 4',
+		focusSelector: '.nav-list a[href="/mcp/servers"]',
+		items: [
+			{
+				label: 'MCP 서버',
+				description: '에이전트가 사용할 도구 서버를 연결하고 상태를 확인합니다.'
+			},
+			{ label: 'MCP 정책', description: '도구 호출을 허용하거나 제한하는 규칙을 관리합니다.' },
+			{ label: '도구 테스트', description: '연결한 MCP 도구를 직접 실행해 결과를 확인합니다.' },
+			{ label: '게이트웨이', description: '외부 API 요청을 받을 주소와 리스너를 설정합니다.' },
+			{ label: '라우트', description: 'HTTP와 TCP 요청이 전달될 목적지 경로를 구성합니다.' }
+		],
+		target: 'navigation',
+		title: 'MCP와 API 트래픽'
+	},
+	{
+		description:
+			'공통 도구에서는 정책식을 미리 시험하고, 전체 원본 설정이나 관리자 환경을 직접 확인할 수 있습니다.',
+		eyebrow: '메뉴 4 / 4',
+		focusSelector: '.nav-list a[href="/cel"]',
+		items: [
+			{ label: 'CEL 테스트', description: '정책에 사용할 조건식을 저장 전에 시험합니다.' },
+			{
+				label: '원본 설정',
+				description: '게이트웨이 전체 설정을 원문 형태로 검토하고 편집합니다.'
+			},
+			{ label: '설정', description: 'UI, 외부 인증과 공통 실행 환경을 관리합니다.' }
+		],
+		target: 'navigation',
+		title: '공통 관리 도구'
+	},
+	{
+		description:
+			'15분·1시간·24시간 단위로 데이터를 확인하고, 필요할 때 새로고침해 최신 운영 상태를 불러옵니다.',
+		eyebrow: '대시보드 1 / 4',
+		target: 'commandbar',
+		title: '조회 범위와 갱신 상태'
+	},
+	{
+		description:
+			'요청과 응답이 리스너, 정책, 라우팅 엔진을 거쳐 각 서비스로 이동하는 과정을 보여줍니다. 노드를 누르면 상세 정보가 열립니다.',
+		eyebrow: '대시보드 2 / 4',
+		target: 'flow',
+		title: '게이트웨이 처리 흐름'
+	},
+	{
+		description:
+			'선택한 기간의 요청 수, 성공률, 토큰 사용량과 예상 비용을 빠르게 비교합니다. 아래 요청 흐름에서 시간대별 변화도 확인할 수 있습니다.',
+		eyebrow: '대시보드 3 / 4',
+		target: 'metrics',
+		title: '핵심 운영 지표'
+	},
+	{
+		description:
+			'LLM, MCP, API의 가동 상태와 보안 점검 항목을 확인하고 필요한 설정 화면으로 바로 이동할 수 있습니다.',
+		eyebrow: '대시보드 4 / 4',
+		target: 'services',
+		title: '서비스 상태와 관리자 점검'
+	}
+];
 
 const dashboardPeriods: Record<
 	DashboardPeriod,
@@ -100,6 +226,10 @@ export function HomePage() {
 	const upsertResource = useUpsertConfigResource();
 	const help = useSchemaHelp();
 	const projectSurfaceInitializationStarted = useRef(false);
+	const dashboardCommandbarRef = useRef<HTMLDivElement>(null);
+	const dashboardFlowRef = useRef<HTMLElement>(null);
+	const dashboardMetricsRef = useRef<HTMLElement>(null);
+	const dashboardServicesRef = useRef<HTMLDivElement>(null);
 	const hasLlm = Boolean(
 		config.data?.llm || models.length || virtualModels.length || providers.length
 	);
@@ -132,6 +262,9 @@ export function HomePage() {
 		Object.keys(mcpData.data?.mcp?.policies ?? {}).length;
 	const [dashboardPeriod, setDashboardPeriod] = useState<DashboardPeriod>('1h');
 	const [selectedMapNode, setSelectedMapNode] = useState<GatewayMapNode | null>(null);
+	const [dashboardTourStep, setDashboardTourStep] = useState<number | null>(null);
+	const currentDashboardTourTarget =
+		dashboardTourStep == null ? null : dashboardTourSteps[dashboardTourStep]?.target;
 	const selectedPeriod = dashboardPeriods[dashboardPeriod];
 	const recentActivity = useQuery({
 		queryKey: ['dashboardAnalytics', dashboardPeriod],
@@ -179,6 +312,66 @@ export function HomePage() {
 	const [mcpSettingsOpen, setMcpSettingsOpen] = useState(false);
 
 	useEffect(() => {
+		if (import.meta.env.MODE === 'e2e') return;
+		try {
+			if (window.localStorage.getItem(dashboardTourStorageKey) !== 'done') {
+				setDashboardTourStep(0);
+			}
+		} catch {
+			setDashboardTourStep(0);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (dashboardTourStep == null) return;
+		const step = dashboardTourSteps[dashboardTourStep];
+		const currentTarget = step?.target;
+		const target =
+			currentTarget === 'navigation'
+				? document.querySelector<HTMLElement>('.sidebar')
+				: currentTarget === 'commandbar'
+					? dashboardCommandbarRef.current
+					: currentTarget === 'flow'
+						? dashboardFlowRef.current
+						: currentTarget === 'metrics'
+							? dashboardMetricsRef.current
+							: currentTarget === 'services'
+								? dashboardServicesRef.current
+								: null;
+		const focusElement = step?.focusSelector
+			? document.querySelector<HTMLElement>(step.focusSelector)
+			: null;
+		if (currentTarget === 'navigation') {
+			target?.classList.add('dashboard-tour-focus');
+			focusElement?.classList.add('dashboard-tour-nav-item');
+		}
+		const frame = window.requestAnimationFrame(() => {
+			(currentTarget === 'navigation' ? focusElement : target)?.scrollIntoView({
+				behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+				block: 'center'
+			});
+		});
+		const closeOnEscape = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape') return;
+			try {
+				window.localStorage.setItem(dashboardTourStorageKey, 'done');
+			} catch {
+				// The guide can still close when storage is unavailable.
+			}
+			setDashboardTourStep(null);
+		};
+		window.addEventListener('keydown', closeOnEscape);
+		return () => {
+			window.cancelAnimationFrame(frame);
+			window.removeEventListener('keydown', closeOnEscape);
+			if (currentTarget === 'navigation') {
+				target?.classList.remove('dashboard-tour-focus');
+				focusElement?.classList.remove('dashboard-tour-nav-item');
+			}
+		};
+	}, [dashboardTourStep]);
+
+	useEffect(() => {
 		if (!selectedMapNode) return;
 		const closeOnEscape = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') setSelectedMapNode(null);
@@ -200,6 +393,15 @@ export function HomePage() {
 		projectSurfaceInitializationStarted.current = true;
 		enable.mutate({ surface: projectStartupSurface });
 	}, [config.data, enable, hasTraffic, pageDataError, pageDataLoading]);
+
+	function completeDashboardTour() {
+		try {
+			window.localStorage.setItem(dashboardTourStorageKey, 'done');
+		} catch {
+			// The guide can still close when storage is unavailable.
+		}
+		setDashboardTourStep(null);
+	}
 
 	async function enableSurface(surface: StartupSurface) {
 		setCostRefreshError(null);
@@ -291,7 +493,12 @@ export function HomePage() {
 				</StatusBanner>
 			) : null}
 
-			<div className="dashboard-commandbar" aria-label="대시보드 조회 조건" role="toolbar">
+			<div
+				className={`dashboard-commandbar ${currentDashboardTourTarget === 'commandbar' ? 'dashboard-tour-focus' : ''}`}
+				aria-label="대시보드 조회 조건"
+				ref={dashboardCommandbarRef}
+				role="toolbar"
+			>
 				<div className="dashboard-environment">
 					<span>현재 환경</span>
 					<strong>
@@ -327,6 +534,14 @@ export function HomePage() {
 						</button>
 					))}
 				</fieldset>
+				<button
+					className="dashboard-guide-button"
+					type="button"
+					onClick={() => setDashboardTourStep(0)}
+				>
+					<CircleHelp size={15} />
+					사용 가이드
+				</button>
 				<button
 					className="dashboard-refresh-button"
 					disabled={recentActivity.isFetching}
@@ -368,8 +583,9 @@ export function HomePage() {
 
 			<div className="admin-visual-grid">
 				<section
-					className="admin-visual-panel gateway-flow-panel"
+					className={`admin-visual-panel gateway-flow-panel ${currentDashboardTourTarget === 'flow' ? 'dashboard-tour-focus' : ''}`}
 					aria-labelledby="gateway-flow-title"
+					ref={dashboardFlowRef}
 				>
 					<div className="admin-panel-heading">
 						<div>
@@ -418,7 +634,11 @@ export function HomePage() {
 				/>
 			) : null}
 
-			<section className="admin-metric-grid" aria-label="핵심 운영 지표">
+			<section
+				className={`admin-metric-grid ${currentDashboardTourTarget === 'metrics' ? 'dashboard-tour-focus' : ''}`}
+				aria-label="핵심 운영 지표"
+				ref={dashboardMetricsRef}
+			>
 				<DashboardMetric
 					icon={<Activity size={19} />}
 					label="처리 요청"
@@ -478,7 +698,10 @@ export function HomePage() {
 				<RequestTrendChart loading={recentActivity.isLoading} series={recentRequestSeries} />
 			</section>
 
-			<div className="admin-dashboard-grid">
+			<div
+				className={`admin-dashboard-grid ${currentDashboardTourTarget === 'services' ? 'dashboard-tour-focus' : ''}`}
+				ref={dashboardServicesRef}
+			>
 				<section
 					className="admin-dashboard-panel service-panel"
 					aria-labelledby="service-status-title"
@@ -698,6 +921,21 @@ export function HomePage() {
 					}
 				/>
 			</section>
+			{dashboardTourStep != null ? (
+				<DashboardTour
+					current={dashboardTourStep}
+					key={dashboardTourStep}
+					onClose={completeDashboardTour}
+					onNext={() => {
+						if (dashboardTourStep === dashboardTourSteps.length - 1) {
+							completeDashboardTour();
+							return;
+						}
+						setDashboardTourStep(step => (step == null ? 0 : step + 1));
+					}}
+					onPrevious={() => setDashboardTourStep(step => Math.max(0, (step ?? 1) - 1))}
+				/>
+			) : null}
 			{llmSettingsOpen ? (
 				<LlmSettingsDrawer
 					config={config.data}
@@ -740,6 +978,78 @@ export function HomePage() {
 				/>
 			) : null}
 		</div>
+	);
+}
+
+function DashboardTour(props: {
+	current: number;
+	onClose: () => void;
+	onNext: () => void;
+	onPrevious: () => void;
+}) {
+	const nextButtonRef = useRef<HTMLButtonElement>(null);
+	const step = dashboardTourSteps[props.current];
+	const isLast = props.current === dashboardTourSteps.length - 1;
+
+	useEffect(() => {
+		nextButtonRef.current?.focus();
+	}, []);
+
+	return (
+		<>
+			<div className="dashboard-tour-backdrop" />
+			<aside
+				aria-labelledby="dashboard-tour-title"
+				aria-modal="true"
+				className={`dashboard-tour-card ${step.target === 'welcome' ? 'welcome' : ''} ${step.target === 'navigation' ? 'navigation' : ''}`}
+				role="dialog"
+			>
+				<div className="dashboard-tour-progress-row">
+					<span>
+						{props.current + 1} / {dashboardTourSteps.length}
+					</span>
+					<button type="button" onClick={props.onClose}>
+						건너뛰기
+					</button>
+				</div>
+				<div className="dashboard-tour-progress" aria-hidden="true">
+					<i style={{ width: `${((props.current + 1) / dashboardTourSteps.length) * 100}%` }} />
+				</div>
+				<span className="dashboard-tour-eyebrow">{step.eyebrow}</span>
+				<h3 id="dashboard-tour-title">{step.title}</h3>
+				<p>{step.description}</p>
+				{step.items?.length ? (
+					<div className="dashboard-tour-menu-list">
+						{step.items.map(item => (
+							<div key={item.label}>
+								<strong>{item.label}</strong>
+								<span>{item.description}</span>
+							</div>
+						))}
+					</div>
+				) : null}
+				<div className="dashboard-tour-actions">
+					<button
+						className="dashboard-tour-previous"
+						disabled={props.current === 0}
+						type="button"
+						onClick={props.onPrevious}
+					>
+						<ChevronLeft size={16} />
+						이전
+					</button>
+					<button
+						className="dashboard-tour-next"
+						ref={nextButtonRef}
+						type="button"
+						onClick={props.onNext}
+					>
+						{isLast ? '시작하기' : '다음'}
+						{isLast ? <CheckCircle2 size={16} /> : <ChevronRight size={16} />}
+					</button>
+				</div>
+			</aside>
+		</>
 	);
 }
 

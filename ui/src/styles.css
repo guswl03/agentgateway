@@ -2537,6 +2537,7 @@ a {
 }
 
 .dashboard-period-control button,
+.dashboard-guide-button,
 .dashboard-refresh-button {
 	border: 0;
 	background: transparent;
@@ -2560,6 +2561,7 @@ a {
 	color: var(--primary);
 }
 
+.dashboard-guide-button,
 .dashboard-refresh-button {
 	display: inline-flex;
 	align-items: center;
@@ -2570,6 +2572,7 @@ a {
 	padding: 0 11px;
 }
 
+.dashboard-guide-button:hover,
 .dashboard-refresh-button:hover:not(:disabled) {
 	border-color: color-mix(in srgb, var(--primary) 42%, var(--line));
 	color: var(--primary);
@@ -2582,6 +2585,207 @@ a {
 
 .dashboard-refresh-button .spinning {
 	animation: dashboard-spin 900ms linear infinite;
+}
+
+.dashboard-tour-backdrop {
+	position: fixed;
+	z-index: 90;
+	inset: 0;
+	background: color-mix(in srgb, var(--text) 48%, transparent);
+	backdrop-filter: blur(1px);
+	animation: dashboard-backdrop-in 180ms ease-out both;
+}
+
+.dashboard-tour-focus {
+	z-index: 92;
+	box-shadow:
+		0 0 0 4px color-mix(in srgb, var(--primary) 72%, white),
+		0 18px 45px color-mix(in srgb, var(--text) 24%, transparent);
+	animation: dashboard-tour-focus-pulse 1.8s ease-in-out infinite;
+}
+
+.dashboard-commandbar.dashboard-tour-focus,
+.admin-visual-panel.dashboard-tour-focus,
+.admin-metric-grid.dashboard-tour-focus,
+.admin-dashboard-grid.dashboard-tour-focus {
+	position: relative;
+}
+
+.sidebar.dashboard-tour-focus {
+	z-index: 92;
+	pointer-events: none;
+}
+
+.nav-item.dashboard-tour-nav-item {
+	background: color-mix(in srgb, var(--primary) 16%, var(--surface));
+	box-shadow: inset 3px 0 0 var(--primary);
+	color: var(--primary);
+}
+
+.dashboard-tour-card {
+	position: fixed;
+	z-index: 100;
+	right: 28px;
+	bottom: 28px;
+	width: min(390px, calc(100vw - 40px));
+	border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--line));
+	border-radius: 12px;
+	background: var(--surface);
+	box-shadow: 0 24px 70px color-mix(in srgb, var(--text) 26%, transparent);
+	padding: 20px;
+	animation: dashboard-tour-card-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.dashboard-tour-card.welcome {
+	top: 50%;
+	right: auto;
+	bottom: auto;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.dashboard-tour-card.navigation {
+	right: auto;
+	bottom: 28px;
+	left: 248px;
+	width: min(430px, calc(100vw - 288px));
+	max-height: calc(100vh - 56px);
+	overflow-y: auto;
+}
+
+.dashboard-tour-progress-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.dashboard-tour-progress-row span {
+	color: var(--muted);
+	font-size: 12px;
+	font-weight: 750;
+	font-variant-numeric: tabular-nums;
+}
+
+.dashboard-tour-progress-row button {
+	border: 0;
+	background: transparent;
+	color: var(--muted);
+	font-size: 12px;
+	font-weight: 700;
+	padding: 4px;
+}
+
+.dashboard-tour-progress-row button:hover {
+	color: var(--primary);
+}
+
+.dashboard-tour-progress {
+	height: 3px;
+	margin-top: 10px;
+	overflow: hidden;
+	border-radius: 999px;
+	background: var(--surface-3);
+}
+
+.dashboard-tour-progress i {
+	display: block;
+	height: 100%;
+	border-radius: inherit;
+	background: var(--primary);
+	transition: width 220ms ease;
+}
+
+.dashboard-tour-eyebrow {
+	display: block;
+	margin-top: 19px;
+	color: var(--primary);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+}
+
+.dashboard-tour-card h3 {
+	margin: 6px 0 0;
+	font-size: 20px;
+	line-height: 1.35;
+}
+
+.dashboard-tour-card p {
+	margin: 10px 0 0;
+	color: var(--muted);
+	font-size: 14px;
+	line-height: 1.7;
+}
+
+.dashboard-tour-menu-list {
+	display: grid;
+	margin-top: 14px;
+	overflow: hidden;
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: var(--surface-2);
+}
+
+.dashboard-tour-menu-list > div {
+	display: grid;
+	grid-template-columns: 100px minmax(0, 1fr);
+	gap: 12px;
+	border-bottom: 1px solid var(--line);
+	padding: 9px 11px;
+}
+
+.dashboard-tour-menu-list > div:last-child {
+	border-bottom: 0;
+}
+
+.dashboard-tour-menu-list strong {
+	color: var(--text);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.dashboard-tour-menu-list span {
+	color: var(--muted);
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.dashboard-tour-actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.dashboard-tour-actions button {
+	display: inline-flex;
+	min-height: 40px;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	border-radius: 6px;
+	font-size: 13px;
+	font-weight: 800;
+	padding: 0 14px;
+}
+
+.dashboard-tour-previous {
+	border: 1px solid var(--line);
+	background: var(--surface);
+	color: var(--text);
+}
+
+.dashboard-tour-next {
+	margin-left: auto;
+	border: 1px solid var(--primary);
+	background: var(--primary);
+	color: white;
+}
+
+.dashboard-tour-next:hover {
+	background: var(--primary-strong);
 }
 
 .admin-dashboard-hero {
@@ -3376,12 +3580,35 @@ a {
 	}
 }
 
+@keyframes dashboard-tour-card-in {
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes dashboard-tour-focus-pulse {
+	0%,
+	100% {
+		box-shadow:
+			0 0 0 4px color-mix(in srgb, var(--primary) 72%, white),
+			0 18px 45px color-mix(in srgb, var(--text) 24%, transparent);
+	}
+	50% {
+		box-shadow:
+			0 0 0 7px color-mix(in srgb, var(--primary) 34%, transparent),
+			0 18px 45px color-mix(in srgb, var(--text) 24%, transparent);
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.admin-live-badge i,
 	.admin-health-bar,
 	.dashboard-environment-dot,
 	.dashboard-refresh-button .spinning,
 	.dashboard-sync-dot,
+	.dashboard-tour-backdrop,
+	.dashboard-tour-card,
+	.dashboard-tour-focus,
 	.flow-source-dot,
 	.gateway-detail-backdrop,
 	.gateway-detail-drawer,
@@ -3392,6 +3619,10 @@ a {
 
 	.gateway-flow-packet {
 		display: none;
+	}
+
+	.dashboard-tour-progress i {
+		transition: none;
 	}
 }
 
@@ -8074,6 +8305,31 @@ details summary {
 	.dashboard-period-control button {
 		flex: 1;
 		min-width: 0;
+	}
+
+	.dashboard-guide-button,
+	.dashboard-refresh-button {
+		flex: 1;
+		justify-content: center;
+	}
+
+	.dashboard-tour-card,
+	.dashboard-tour-card.welcome,
+	.dashboard-tour-card.navigation {
+		top: auto;
+		right: 16px;
+		bottom: 16px;
+		left: auto;
+		width: calc(100vw - 32px);
+		transform: none;
+	}
+
+	.dashboard-tour-card.navigation {
+		max-height: calc(100vh - 32px);
+	}
+
+	.dashboard-tour-menu-list > div {
+		grid-template-columns: 88px minmax(0, 1fr);
 	}
 
 	.admin-health {
