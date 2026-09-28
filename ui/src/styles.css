@@ -2845,8 +2845,30 @@ a {
 	border: 1px solid var(--line);
 	border-radius: 6px;
 	background: var(--surface);
+	color: inherit;
+	cursor: pointer;
+	font: inherit;
 	padding: 12px 14px;
+	text-align: left;
 	overflow: hidden;
+}
+
+.admin-health:disabled {
+	cursor: default;
+}
+
+.admin-health:focus-visible {
+	outline: 2px solid var(--primary);
+	outline-offset: 3px;
+}
+
+.admin-health-chevron {
+	margin-left: auto;
+	transition: transform 0.2s ease;
+}
+
+.admin-health[aria-expanded='true'] .admin-health-chevron {
+	transform: rotate(90deg);
 }
 
 .admin-health::after {
@@ -2858,9 +2880,10 @@ a {
 	border: 13px solid color-mix(in srgb, var(--primary) 5%, transparent);
 	border-radius: 50%;
 	content: '';
+	pointer-events: none;
 }
 
-.admin-health-signal {
+.admin-health .admin-health-signal {
 	position: relative;
 	z-index: 1;
 	display: flex;
@@ -2868,7 +2891,7 @@ a {
 	gap: 10px;
 }
 
-.admin-health-signal > span {
+.admin-health .admin-health-signal > span {
 	display: flex;
 	height: 21px;
 	align-items: center;
@@ -2926,6 +2949,68 @@ a {
 	display: block;
 	margin-top: 3px;
 	font-size: 15px;
+}
+
+.dashboard-attention-details {
+	margin: 12px 0 18px;
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: var(--surface);
+	padding: 16px;
+}
+
+.dashboard-attention-heading {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.dashboard-attention-heading span,
+.dashboard-attention-details .dashboard-attention-item p {
+	color: var(--muted);
+	font-size: 13px;
+}
+
+.dashboard-attention-details ul {
+	display: grid;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.dashboard-attention-details .dashboard-attention-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	padding: 12px;
+}
+
+.dashboard-attention-details .dashboard-attention-item > svg {
+	flex: none;
+	color: var(--warn);
+}
+
+.dashboard-attention-details .dashboard-attention-item > div {
+	min-width: 0;
+	flex: 1;
+}
+
+.dashboard-attention-details .dashboard-attention-item p {
+	margin: 4px 0 0;
+}
+
+.dashboard-attention-details .dashboard-attention-item a {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	gap: 4px;
+	color: var(--primary);
+	font-size: 13px;
+	font-weight: 700;
 }
 
 .admin-visual-grid {
@@ -8334,6 +8419,15 @@ details summary {
 
 	.admin-health {
 		width: 100%;
+	}
+
+	.dashboard-attention-details .dashboard-attention-item {
+		align-items: flex-start;
+		flex-wrap: wrap;
+	}
+
+	.dashboard-attention-details .dashboard-attention-item a {
+		margin-left: 30px;
 	}
 
 	.admin-metric-grid,

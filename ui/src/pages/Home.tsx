@@ -49,6 +49,13 @@ const uiAuthPolicyKeys = ['oidc', 'jwtAuth', 'extAuthz', 'basicAuth', 'apiKey', 
 const projectStartupSurface = 'traffic';
 
 type DashboardPeriod = '15m' | '1h' | '24h';
+type DashboardAttentionItem = {
+	id: string;
+	title: string;
+	detail: string;
+	action: string;
+	to: '/settings' | '/raw-config' | '/llm/models' | '/mcp/servers' | '/traffic/gateways';
+};
 type GatewayMapNode = 'request' | 'listener' | 'policy' | 'router' | 'llm' | 'mcp' | 'api';
 type DashboardTourTarget =
 	| 'welcome'
@@ -256,11 +263,58 @@ export function HomePage() {
 		Number(hasLlm && callableModels === 0) +
 		Number(hasMcp && mcpServers.length === 0) +
 		Number(hasTraffic && (hasBinds ? traffic.listeners === 0 : traffic.gateways === 0));
-	const attentionCount = warnings.length + Number(uiGatewayNeedsAuthWarning) + setupIssueCount;
+	const attentionItems: DashboardAttentionItem[] = [];
+	if (uiGatewayNeedsAuthWarning) {
+		attentionItems.push({
+			id: 'ui-auth',
+			title: 'UI 인증 정책 없음',
+			detail: '관리 화면에 접근할 때 인증을 요구하는 정책이 설정되지 않았습니다.',
+			action: 'UI 보안 설정 열기',
+			to: '/settings'
+		});
+	}
+	warnings.forEach((warning, index) => {
+		attentionItems.push({
+			id: `config-${index}`,
+			title: '설정 경고',
+			detail: warning,
+			action: '원본 설정 확인',
+			to: '/raw-config'
+		});
+	});
+	if (hasLlm && callableModels === 0) {
+		attentionItems.push({
+			id: 'llm-model',
+			title: 'LLM 모델 없음',
+			detail: 'LLM 게이트웨이는 켜져 있지만 요청을 처리할 모델이 등록되지 않았습니다.',
+			action: '모델 추가',
+			to: '/llm/models'
+		});
+	}
+	if (hasMcp && mcpServers.length === 0) {
+		attentionItems.push({
+			id: 'mcp-server',
+			title: 'MCP 서버 없음',
+			detail: 'MCP 게이트웨이는 켜져 있지만 연결된 도구 서버가 없습니다.',
+			action: 'MCP 서버 추가',
+			to: '/mcp/servers'
+		});
+	}
+	if (hasTraffic && (hasBinds ? traffic.listeners === 0 : traffic.gateways === 0)) {
+		attentionItems.push({
+			id: 'traffic-gateway',
+			title: 'API 트래픽 수신 경로 없음',
+			detail: 'API 트래픽이 켜져 있지만 요청을 받을 게이트웨이 또는 리스너가 없습니다.',
+			action: '게이트웨이 설정 열기',
+			to: '/traffic/gateways'
+		});
+	}
+	const attentionCount = attentionItems.length;
 	const configuredPolicyCount =
 		Object.keys(config.data?.llm?.policies ?? {}).length +
 		Object.keys(mcpData.data?.mcp?.policies ?? {}).length;
 	const [dashboardPeriod, setDashboardPeriod] = useState<DashboardPeriod>('1h');
+	const [attentionDetailsOpen, setAttentionDetailsOpen] = useState(false);
 	const [selectedMapNode, setSelectedMapNode] = useState<GatewayMapNode | null>(null);
 	const [dashboardTourStep, setDashboardTourStep] = useState<number | null>(null);
 	const currentDashboardTourTarget =
@@ -562,8 +616,14 @@ export function HomePage() {
 					<h2 id="admin-dashboard-title">시스템 현황</h2>
 					<p>트래픽, 연결 상태, 정책 점검 항목을 확인합니다.</p>
 				</div>
-				<div className={attentionCount === 0 ? 'admin-health ok' : 'admin-health attention'}>
-					<div className="admin-health-signal">
+				<button
+					aria-expanded={attentionDetailsOpen && attentionCount > 0}
+					className={attentionCount === 0 ? 'admin-health ok' : 'admin-health attention'}
+					disabled={attentionCount === 0}
+					onClick={() => setAttentionDetailsOpen(open => !open)}
+					type="button"
+				>
+					<span className="admin-health-signal">
 						{attentionCount === 0 ? <CheckCircle2 size={22} /> : <CircleAlert size={22} />}
 						<span aria-hidden="true">
 							<i className="admin-health-bar health-bar-one" />
@@ -571,15 +631,40 @@ export function HomePage() {
 							<i className="admin-health-bar health-bar-three" />
 							<i className="admin-health-bar health-bar-four" />
 						</span>
-					</div>
-					<div>
+					</span>
+					<span className="admin-health-label">
 						<span>전체 상태</span>
 						<strong>
 							{attentionCount === 0 ? '정상 운영 중' : `확인 필요 ${attentionCount}건`}
 						</strong>
-					</div>
-				</div>
+					</span>
+					{attentionCount > 0 ? <ChevronRight className="admin-health-chevron" size={18} /> : null}
+				</button>
 			</section>
+
+			{attentionDetailsOpen && attentionCount > 0 ? (
+				<section aria-label="확인 필요 항목" className="dashboard-attention-details">
+					<div className="dashboard-attention-heading">
+						<strong>확인 필요 항목</strong>
+						<span>{attentionCount}건의 원인과 설정 위치</span>
+					</div>
+					<ul>
+						{attentionItems.map(item => (
+							<li className="dashboard-attention-item" key={item.id}>
+								<CircleAlert aria-hidden="true" size={18} />
+								<div>
+									<strong>{item.title}</strong>
+									<p>{item.detail}</p>
+								</div>
+								<Link to={item.to}>
+									{item.action}
+									<ArrowUpRight aria-hidden="true" size={15} />
+								</Link>
+							</li>
+						))}
+					</ul>
+				</section>
+			) : null}
 
 			<div className="admin-visual-grid">
 				<section

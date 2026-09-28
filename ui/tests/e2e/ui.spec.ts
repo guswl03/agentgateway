@@ -321,6 +321,30 @@ test('skips capability selection when the project traffic surface is already pre
 	await expect(page.locator('.nav-list').getByRole('link', { name: 'Gateways' })).toBeVisible();
 });
 
+test('shows each dashboard attention item and where to resolve it', async ({ page }) => {
+	await mockGateway(page, {
+		gateways: { default: { port: 4000 } },
+		ui: { gateways: 'default' },
+		llm: { gateways: 'default', models: [], providers: [], virtualModels: [] }
+	});
+	await page.goto('/');
+
+	const status = page.getByRole('button', { name: '전체 상태 확인 필요 2건' });
+	await expect(status).toHaveAttribute('aria-expanded', 'false');
+	await status.click();
+
+	const details = page.getByRole('region', { name: '확인 필요 항목' });
+	await expect(status).toHaveAttribute('aria-expanded', 'true');
+	await expect(details.getByText('UI 인증 정책 없음')).toBeVisible();
+	await expect(details.getByText('LLM 모델 없음')).toBeVisible();
+	await expect(details.getByRole('link', { name: 'UI 보안 설정 열기' })).toHaveAttribute(
+		'href',
+		'/settings'
+	);
+	await details.getByRole('link', { name: '모델 추가' }).click();
+	await expect(page).toHaveURL(/\/llm\/models$/);
+});
+
 test('attaches traffic routes to gateways', async ({ page }) => {
 	const gateway = await mockGateway(page, {
 		gateways: {
