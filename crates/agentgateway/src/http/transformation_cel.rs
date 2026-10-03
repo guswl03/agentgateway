@@ -26,6 +26,9 @@ pub struct LocalTransformationConfig {
 #[derive(Default)]
 #[apply(schema_de!)]
 pub struct LocalTransform {
+	/// Exact body-operation origins and change predicates, evaluated before replacement.
+	#[serde(default)]
+	pub body_decisions: Vec<LocalBodyDecision>,
 	/// Headers to append using CEL expressions for values.
 	#[serde(default)]
 	#[serde_as(as = "serde_with::Map<_, _>")]
@@ -56,6 +59,22 @@ pub struct LocalTransform {
 #[apply(schema!)]
 #[derive(Default, ::cel::DynamicType)]
 pub struct TransformationMetadata(pub serde_json::Map<String, serde_json::Value>);
+
+#[apply(schema_de!)]
+pub struct LocalBodyDecision {
+	pub action: String,
+	pub changed_when: Strng,
+	#[serde(default, deserialize_with = "crate::http::policy_report::de_sources")]
+	pub policy_sources: Vec<crate::http::policy_report::PolicySource>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BodyDecision {
+	pub action: String,
+	pub changed_when: cel::Expression,
+	pub policy_sources: Vec<crate::http::policy_report::PolicySource>,
+}
 
 impl TransformerConfig {
 	fn try_from_local_config<F>(
@@ -117,7 +136,25 @@ impl TransformerConfig {
 			.into_iter()
 			.map(|(k, v)| Ok::<_, anyhow::Error>((k, compile(v.as_str(), strict, warnings)?)))
 			.collect::<Result<_, _>>()?;
+		if req.body_decisions.len() > 64 || (!req.body_decisions.is_empty() && body.is_none()) {
+			anyhow::bail!("bodyDecisions requires a body transformation and at most 64 entries");
+		}
+		let body_decisions = req
+			.body_decisions
+			.into_iter()
+			.map(|decision| {
+				if decision.action != "remove_field" {
+					anyhow::bail!("bodyDecisions supports only remove_field");
+				}
+				Ok(BodyDecision {
+					action: decision.action,
+					changed_when: compile(&decision.changed_when, strict, warnings)?,
+					policy_sources: decision.policy_sources,
+				})
+			})
+			.collect::<anyhow::Result<Vec<_>>>()?;
 		Ok(TransformerConfig {
+			body_decisions,
 			set,
 			add,
 			remove,
@@ -170,7 +207,10 @@ pub struct Transformation {
 
 #[serde_as]
 #[derive(Debug, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TransformerConfig {
+	#[serde(default, skip_serializing_if = "Vec::is_empty")]
+	pub body_decisions: Vec<BodyDecision>,
 	#[serde(default, skip_serializing_if = "Vec::is_empty")]
 	pub add: Vec<(HeaderOrPseudo, cel::Expression)>,
 	#[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -250,13 +290,22 @@ fn json_to_header_value(v: &serde_json::Value) -> Option<HeaderValue> {
 
 impl Transformation {
 	pub fn apply_request(&self, req: &mut crate::http::Request) {
-		Self::apply(req.into(), self.request.as_ref(), None)
+		Self::apply(req.into(), self.request.as_ref(), None, None)
 	}
 
 	pub fn apply_response(
 		&self,
 		resp: &mut crate::http::Response,
 		request: Option<&RequestSnapshot>,
+	) {
+		self.apply_response_internal(resp, request, None)
+	}
+
+	fn apply_response_internal(
+		&self,
+		resp: &mut crate::http::Response,
+		request: Option<&RequestSnapshot>,
+		decisions: Option<&crate::http::policy_report::PolicyDecisionLog>,
 	) {
 		if let Some(request_metadata) = request.and_then(|req| req.metadata.as_ref()) {
 			// Transformation metadata is currently stored in request/response extensions.
@@ -275,7 +324,7 @@ impl Transformation {
 				ext.insert(request_metadata.clone());
 			}
 		}
-		Self::apply(resp.into(), self.response.as_ref(), request)
+		Self::apply(resp.into(), self.response.as_ref(), request, decisions)
 	}
 
 	fn exec_header<'a>(
@@ -302,6 +351,7 @@ impl Transformation {
 		mut r: RequestOrResponse<'a>,
 		cfg: &TransformerConfig,
 		request: Option<&'a RequestSnapshot>,
+		decisions: Option<&crate::http::policy_report::PolicyDecisionLog>,
 	) {
 		if !cfg.metadata.is_empty() {
 			for (name, expr) in &cfg.metadata {
@@ -357,9 +407,44 @@ impl Transformation {
 			r.headers().remove(k);
 		}
 		if let Some(b) = &cfg.body {
-			// If it fails, set an empty body
-			let b = eval_body(&r, b, request).unwrap_or_default();
-			r.replace_body_bytes(b);
+			let matched = cfg
+				.body_decisions
+				.iter()
+				.filter(|decision| {
+					eval_metadata(&r, &decision.changed_when, request).ok()
+						== Some(serde_json::Value::Bool(true))
+				})
+				.collect::<Vec<_>>();
+			let previous = match &r {
+				RequestOrResponse::Request(req) => req.body().known_bytes().cloned(),
+				RequestOrResponse::Response(resp) => resp.body().known_bytes().cloned(),
+			};
+			let direction = if matches!(&r, RequestOrResponse::Request(_)) {
+				"request"
+			} else {
+				"response"
+			};
+			// A failed expression retains the existing empty-body behavior but never reports success.
+			match eval_body(&r, b, request) {
+				Ok(body) => {
+					let changed = previous.as_ref().is_some_and(|previous| {
+						match (
+							serde_json::from_slice::<serde_json::Value>(previous),
+							serde_json::from_slice::<serde_json::Value>(&body),
+						) {
+							(Ok(before), Ok(after)) => before != after,
+							_ => previous != &body,
+						}
+					});
+					r.replace_body_bytes(body);
+					if changed && let Some(decisions) = decisions {
+						for decision in matched {
+							decisions.record(&decision.action, direction, &decision.policy_sources);
+						}
+					}
+				},
+				Err(_) => r.replace_body_bytes(Bytes::new()),
+			}
 		}
 	}
 
@@ -383,10 +468,15 @@ impl crate::store::RequestPolicyTrait for Transformation {
 	async fn apply(
 		&self,
 		_client: &crate::proxy::httpproxy::PolicyClient,
-		_log: &mut crate::telemetry::log::RequestLog,
+		log: &mut crate::telemetry::log::RequestLog,
 		req: &mut crate::http::Request,
 	) -> Result<crate::http::PolicyResponse, crate::proxy::ProxyResponse> {
-		self.apply_request(req);
+		Self::apply(
+			req.into(),
+			self.request.as_ref(),
+			None,
+			Some(&log.guardrails.policy_decisions),
+		);
 		Ok(crate::http::PolicyResponse::default())
 	}
 
@@ -405,6 +495,8 @@ impl crate::store::RequestPolicyTrait for Transformation {
 			.chain(self.response.replace.as_ref())
 			.chain(self.response.body.as_ref())
 			.chain(self.response.metadata.iter().map(|v| &v.1))
+			.chain(self.request.body_decisions.iter().map(|v| &v.changed_when))
+			.chain(self.response.body_decisions.iter().map(|v| &v.changed_when))
 	}
 }
 
@@ -412,10 +504,15 @@ impl store::BackendPolicyTrait for Transformation {
 	async fn apply(
 		&self,
 		_client: &PolicyClient,
-		_log: &mut Option<&mut RequestLog>,
+		log: &mut Option<&mut RequestLog>,
 		req: &mut Request,
 	) -> Result<PolicyResponse, ProxyResponse> {
-		self.apply_request(req);
+		Self::apply(
+			req.into(),
+			self.request.as_ref(),
+			None,
+			log.as_ref().map(|log| &log.guardrails.policy_decisions),
+		);
 		Ok(crate::http::PolicyResponse::default())
 	}
 }
@@ -426,7 +523,11 @@ impl store::ResponsePolicyTrait for Transformation {
 		log: &mut RequestLog,
 		resp: &mut Response,
 	) -> Result<PolicyResponse, ProxyResponse> {
-		self.apply_response(resp, log.request_snapshot.as_deref());
+		self.apply_response_internal(
+			resp,
+			log.request_snapshot.as_deref(),
+			Some(&log.guardrails.policy_decisions),
+		);
 		Ok(crate::http::PolicyResponse::default())
 	}
 }

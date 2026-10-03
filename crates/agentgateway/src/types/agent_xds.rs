@@ -989,6 +989,7 @@ fn convert_backend_ai_policy(
 					},
 				};
 				let guard = llm::policy::RequestGuard {
+					policy_sources: Vec::new(),
 					rejection,
 					scope: convert_content_scopes(&reqp.scope)?,
 					kind,
@@ -1078,7 +1079,11 @@ fn convert_backend_ai_policy(
 					})
 				},
 			};
-			Some(llm::policy::ResponseGuard { rejection, kind })
+			Some(llm::policy::ResponseGuard {
+				policy_sources: Vec::new(),
+				rejection,
+				kind,
+			})
 		});
 
 		let streaming =
@@ -2278,6 +2283,7 @@ fn transformation_from_proto(
 		}
 
 		LocalTransform {
+			body_decisions: Vec::new(),
 			add,
 			set,
 			remove,
@@ -2589,6 +2595,7 @@ fn traffic_policy_from_proto(
 			                   key: Option<&str>| {
 				let t = tps::local_rate_limit::Type::try_from(limit_type)?;
 				http::localratelimit::RateLimitSpec {
+					policy_sources: Vec::new(),
 					max_tokens,
 					tokens_per_fill,
 					fill_interval: fill_interval

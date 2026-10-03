@@ -1,0 +1,309 @@
+{
+  "policy_packs": [
+    {
+      "pack_id": "KR_AI_BASIC_ACT_GATEWAY_ONLY_PACK",
+      "version": "2.0.0-gateway-only-review",
+      "priority": 200,
+      "cards": [
+        {
+          "law_id": "KR_AI_BASIC_ACT",
+          "policy_id": "KR_AI_GATEWAY_TEXT_MARK_002"
+        },
+        {
+          "law_id": "KR_AI_BASIC_ACT",
+          "policy_id": "KR_AI_GATEWAY_GENERATED_HEADER_003"
+        },
+        {
+          "law_id": "KR_AI_BASIC_ACT",
+          "policy_id": "KR_AI_GATEWAY_STATIC_EXPLANATION_LINK_008"
+        },
+        {
+          "law_id": "KR_AI_BASIC_ACT",
+          "policy_id": "KR_AI_GATEWAY_REQUEST_PATTERN_BLOCK_009"
+        },
+        {
+          "law_id": "KR_AI_BASIC_ACT",
+          "policy_id": "KR_AI_GATEWAY_ACCESS_EVENT_LOG_011"
+        },
+        {
+          "law_id": "KR_AI_BASIC_ACT_DECREE",
+          "policy_id": "KR_AI_GATEWAY_RESEARCH_JWT_SECURITY_012"
+        },
+        {
+          "law_id": "KR_AI_BASIC_ACT_DECREE",
+          "policy_id": "KR_AI_GATEWAY_RESEARCH_PATTERN_BLOCK_013"
+        },
+        {
+          "law_id": "KR_AI_BASIC_ACT",
+          "policy_id": "KR_AI_GATEWAY_FIXED_ROUTE_STOP_014"
+        }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "law_id": "KR_AI_BASIC_ACT",
+      "policy_id": "KR_AI_GATEWAY_TEXT_MARK_002",
+      "policy_text": "관리자가 지정한 비스트리밍 JSON 응답 경로와 텍스트 필드에 AI 생성 사실을 나타내는 고정 안내 문구를 Gateway 응답 본문 변환으로 삽입한다. 적용 경로·필드·문구는 설정값으로 고정하며 도구 호출 인자나 구조화 업무 데이터는 변환 대상에 포함하지 않는다. 이 카드는 통신 데이터의 문구 삽입이라는 기술적 기여만 제공하며 이용자 인식과 법정 표시 의무 전체의 충족을 판정하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+          "action": "rewrite_body",
+          "object": "AI_OUTPUT"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제31조제2항"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+          "revision_no": "대통령령 제36580호",
+          "promulgation_date": "2026-08-18",
+          "effective_date": "2026-08-20",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+          "provision": "제23조제2항제1호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_AI_BASIC_ACT",
+      "policy_id": "KR_AI_GATEWAY_GENERATED_HEADER_003",
+      "policy_text": "관리자가 지정한 응답 경로에 AI 생성 사실을 나타내는 고정 헤더 이름과 값을 설정한다. Gateway는 설정된 경로에 대한 헤더 전달만 수행하며 고지 완료·이용자 승인·법적 적용 여부에 관한 claim을 요구하거나 검사하지 않는다. 헤더는 기계 판독용 생성 정보 전달의 기술적 지원이고 이용자 안내 또는 법정 표시 의무 전체의 충족을 뜻하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+          "action": "set_header",
+          "object": "AI_OUTPUT"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제31조제2항"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+          "revision_no": "대통령령 제36580호",
+          "promulgation_date": "2026-08-18",
+          "effective_date": "2026-08-20",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+          "provision": "제23조제2항제2호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_AI_BASIC_ACT",
+      "policy_id": "KR_AI_GATEWAY_STATIC_EXPLANATION_LINK_008",
+      "policy_text": "관리자가 정한 응답 경로에 고정 설명 자료 URL을 가리키는 헤더를 설정한다. Gateway의 처리 범위는 설정된 헤더 이름과 정적 URL 값의 전달이며 설명 내용의 생성·조회·검증, 결과별 설명 자료 선택 또는 고영향 여부 판정을 포함하지 않는다. 이 링크 전달은 설명 접근 경로의 기술적 지원으로 한정하며 설명 방안의 수립·시행이나 게시 의무 전체의 충족을 표시하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+          "action": "set_header",
+          "object": "AI_OUTPUT"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제3조제2항"
+        },
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제34조제1항제2호"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+          "revision_no": "대통령령 제36580호",
+          "promulgation_date": "2026-08-18",
+          "effective_date": "2026-08-20",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+          "provision": "제27조제1항제2호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_AI_BASIC_ACT",
+      "policy_id": "KR_AI_GATEWAY_REQUEST_PATTERN_BLOCK_009",
+      "policy_text": "관리자가 지정한 LLM 요청 경로에서 문자열이 고정 금지 정규식에 일치하면 Gateway가 해당 요청을 거부한다. 정규식과 검사 범위는 설정값으로 고정하며 위해·기만·차별의 실질적 의미, 임상 위험 또는 고영향 해당 여부는 판정하지 않는다. 이 문자열 차단은 이용자 보호 방안의 좁은 통신 통제로만 기여하며 보호 방안 전체의 수립·운영이나 법률 준수를 확정하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-REGEX-GUARD-REQUEST",
+          "action": "reject",
+          "object": "TEXT_CONTENT"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제34조제1항제3호"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+          "revision_no": "대통령령 제36580호",
+          "promulgation_date": "2026-08-18",
+          "effective_date": "2026-08-20",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+          "provision": "제27조제1항제3호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_AI_BASIC_ACT",
+      "policy_id": "KR_AI_GATEWAY_ACCESS_EVENT_LOG_011",
+      "policy_text": "관리자가 지정한 Gateway 경로의 접근 이벤트를 기존 활성 접속 로그 설정으로 기록한다. 기록 대상은 접속 시각·요청 경로·응답 상태 등 관리자가 정한 기술적 항목이며 요청·응답 원문, 인증 토큰 및 비밀값의 수집은 이 카드에 포함하지 않는다. 이 카드는 Gateway 접속 이벤트 기록만을 제공하며 법정 조치 이행이나 보관 의무 전체의 충족을 표시하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-ACCESS-LOG-TRACING",
+          "action": "log_access",
+          "object": "ACCESS_LOG"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제34조제1항제5호"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+          "revision_no": "대통령령 제36580호",
+          "promulgation_date": "2026-08-18",
+          "effective_date": "2026-08-20",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+          "provision": "제27조제2항"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_AI_BASIC_ACT_DECREE",
+      "policy_id": "KR_AI_GATEWAY_RESEARCH_JWT_SECURITY_012",
+      "policy_text": "관리자가 지정한 연구 API 경로에는 Gateway가 설정된 발급자·검증키·대상·유효기간을 사용하여 검증한 JWT가 있는 요청만 통과시키도록 strict 인증을 적용한다. JWT 검사는 통신 인증으로 한정하며 연구소 자격·허가·동의·업무 승인이나 연구 자료의 법적 처리 근거를 claim으로 확인하지 않는다. 이 통제는 연구 데이터 보호의 기술적 보안 부분에만 기여하며 연구소 보안 대책 또는 설립 요건 전체를 충족한다고 판정하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "require_jwt",
+          "object": "TRAINING_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+          "revision_no": "대통령령 제36580호",
+          "promulgation_date": "2026-08-18",
+          "effective_date": "2026-08-20",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+          "provision": "제16조의2제2항제2호"
+        },
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제22조의2제2항제3호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_AI_BASIC_ACT_DECREE",
+      "policy_id": "KR_AI_GATEWAY_RESEARCH_PATTERN_BLOCK_013",
+      "policy_text": "관리자가 지정한 연구 API의 LLM 요청 문자열에서 관리자가 정한 자료 식별 표식 또는 비밀값 형식의 고정 정규식이 일치하면 Gateway가 전달을 거부한다. Gateway는 해당 문자열 패턴만 검사하며 자료 분류 조회·반출 승인·기밀 의미 판정·개인정보 처리의 적법성 판정을 수행하지 않는다. 이 통제는 명시적 문자열 유출 차단의 기술적 지원으로 한정하며 연구 데이터 보호 대책 전체를 충족한다고 판정하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-REGEX-GUARD-REQUEST",
+          "action": "reject",
+          "object": "TRAINING_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+          "revision_no": "대통령령 제36580호",
+          "promulgation_date": "2026-08-18",
+          "effective_date": "2026-08-20",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+          "provision": "제16조의2제2항제2호"
+        },
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제22조의2제2항제3호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_AI_BASIC_ACT",
+      "policy_id": "KR_AI_GATEWAY_FIXED_ROUTE_STOP_014",
+      "policy_text": "관리자가 차단 대상으로 지정한 고정 Gateway 경로와 메서드의 요청을 상수 거부 조건으로 차단한다. 차단 목록의 설정·변경과 배포 시점은 관리자 설정으로 고정하며 Gateway는 명령 문서를 조회하거나 중지·시정 명령의 진위·적용 범위·유효기간 또는 법적 의무를 판정하지 않는다. 이 카드는 선택한 경로의 요청 차단이라는 기술적 조치만 제공하며 명령 이행 전체의 완료를 확인하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "authorize_require",
+          "object": "AI_SERVICE"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+          "revision_no": "법률 제21311호",
+          "promulgation_date": "2026-01-20",
+          "effective_date": "2026-07-21",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+          "provision": "제40조제3항"
+        }
+      ],
+      "except": []
+    }
+  ]
+}

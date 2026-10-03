@@ -255,6 +255,7 @@ pub fn test_ed25519_jwt_validation() {
 	)
 	.unwrap();
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Strict,
 		providers: vec![provider],
 		location: bearer_location(),
@@ -345,6 +346,7 @@ fn setup_test_jwt_with_required_claims(
 
 	(
 		Jwt {
+			policy_sources: Vec::new(),
 			mode: Mode::Strict,
 			providers: vec![provider],
 			location: bearer_location(),
@@ -514,6 +516,7 @@ pub fn test_jwt_rejections_table() {
 pub async fn test_apply_strict_missing_token() {
 	// Build a Strict-mode Jwt with no providers (not needed for missing-token path)
 	let jwt = super::Jwt {
+		policy_sources: Vec::new(),
 		mode: super::Mode::Strict,
 		providers: vec![],
 		location: bearer_location(),
@@ -535,6 +538,7 @@ pub async fn test_apply_strict_missing_token() {
 pub async fn test_apply_permissive_no_token_ok() {
 	let base = setup_test_jwt().0;
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Permissive,
 		providers: base.providers.clone(),
 		location: bearer_location(),
@@ -552,6 +556,7 @@ pub async fn test_apply_permissive_no_token_ok() {
 pub async fn test_apply_permissive_invalid_token_ok_and_keeps_header() {
 	let (base, kid, issuer, allowed_aud) = setup_test_jwt();
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Permissive,
 		providers: base.providers.clone(),
 		location: bearer_location(),
@@ -582,6 +587,7 @@ pub async fn test_apply_permissive_valid_token_inserts_claims_and_removes_header
 	use std::time::{SystemTime, UNIX_EPOCH};
 	let (base, kid, issuer, allowed_aud) = setup_test_jwt();
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Permissive,
 		providers: base.providers.clone(),
 		location: bearer_location(),
@@ -614,6 +620,7 @@ pub async fn test_apply_permissive_valid_token_inserts_claims_and_removes_header
 pub async fn test_apply_optional_no_token_ok() {
 	let base = setup_test_jwt().0;
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Optional,
 		providers: base.providers.clone(),
 		location: bearer_location(),
@@ -631,6 +638,7 @@ pub async fn test_apply_optional_no_token_ok() {
 pub async fn test_apply_optional_invalid_token_err() {
 	let base = setup_test_jwt().0;
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Optional,
 		providers: base.providers.clone(),
 		location: bearer_location(),
@@ -657,6 +665,7 @@ pub async fn test_apply_optional_valid_token_respects_preserve_token() {
 	let token = build_signed_token(kid, issuer, allowed_aud, now + 600);
 	for preserve_token in [false, true] {
 		let jwt = Jwt {
+			policy_sources: Vec::new(),
 			mode: Mode::Optional,
 			providers: base.providers.clone(),
 			location: bearer_location(),
@@ -687,6 +696,7 @@ pub async fn test_apply_query_parameter_token_inserts_claims_and_removes_query_p
 
 	let (base, kid, issuer, allowed_aud) = setup_test_jwt();
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Strict,
 		providers: base.providers.clone(),
 		location: crate::http::auth::AuthorizationLocation::QueryParameter {
@@ -808,6 +818,7 @@ fn setup_test_multi_jwt() -> (Jwt, ProviderInfo, ProviderInfo) {
 
 	(
 		Jwt {
+			policy_sources: Vec::new(),
 			mode: Mode::Strict,
 			providers: vec![provider1, provider2],
 			location: bearer_location(),
@@ -869,6 +880,7 @@ pub fn test_empty_required_claims_accepts_token_without_exp() {
 	.unwrap();
 
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Strict,
 		providers: vec![provider],
 		location: bearer_location(),
@@ -922,6 +934,7 @@ pub fn test_default_required_claims_rejects_token_without_exp() {
 	.unwrap();
 
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Strict,
 		providers: vec![provider],
 		location: bearer_location(),
@@ -973,6 +986,7 @@ pub fn test_empty_required_claims_still_rejects_expired_tokens() {
 	.unwrap();
 
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Strict,
 		providers: vec![provider],
 		location: bearer_location(),
@@ -1024,6 +1038,7 @@ pub fn test_required_claims_with_nbf_rejects_missing_nbf() {
 	.unwrap();
 
 	let jwt = Jwt {
+		policy_sources: Vec::new(),
 		mode: Mode::Strict,
 		providers: vec![provider],
 		location: bearer_location(),

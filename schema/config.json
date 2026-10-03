@@ -2601,6 +2601,15 @@
       "anyOf": [
         {
           "type": "object",
+          "properties": {
+            "policySources": {
+              "description": "Origins for this exact rule, rather than every rule in the route.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/PolicySource"
+              }
+            }
+          },
           "unevaluatedProperties": false,
           "oneOf": [
             {
@@ -2644,6 +2653,97 @@
         {
           "type": "string"
         }
+      ]
+    },
+    "PolicySource": {
+      "type": "object",
+      "properties": {
+        "pack_id": {
+          "type": "string"
+        },
+        "pack_version": {
+          "type": "string"
+        },
+        "law_id": {
+          "type": "string"
+        },
+        "policy_id": {
+          "type": "string"
+        },
+        "function_id": {
+          "type": "string"
+        },
+        "function_index": {
+          "type": "integer",
+          "format": "uint",
+          "minimum": 0
+        },
+        "action": {
+          "type": "string"
+        },
+        "legal_sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LegalSource"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "pack_id",
+        "pack_version",
+        "law_id",
+        "policy_id",
+        "function_id",
+        "function_index",
+        "action",
+        "legal_sources"
+      ]
+    },
+    "LegalSource": {
+      "type": "object",
+      "properties": {
+        "law_name": {
+          "type": "string"
+        },
+        "provision": {
+          "type": "string"
+        },
+        "level": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "revision_no": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "promulgation_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "effective_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "law_name",
+        "provision"
       ]
     },
     "McpGuardrails": {
@@ -2900,6 +3000,13 @@
     "LocalTransform": {
       "type": "object",
       "properties": {
+        "bodyDecisions": {
+          "description": "Exact body-operation origins and change predicates, evaluated before replacement.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LocalBodyDecision"
+          }
+        },
         "add": {
           "description": "Headers to append using CEL expressions for values.",
           "type": "object",
@@ -2950,6 +3057,29 @@
         }
       },
       "additionalProperties": false
+    },
+    "LocalBodyDecision": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "changedWhen": {
+          "type": "string"
+        },
+        "policySources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicySource"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "changedWhen"
+      ]
     },
     "LocalBackendTLS": {
       "type": "object",
@@ -5061,6 +5191,13 @@
     "RequestGuard": {
       "type": "object",
       "properties": {
+        "policySources": {
+          "description": "Policy cards that justify this control. Reported only after an actual intervention.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicySource"
+          }
+        },
         "rejection": {
           "description": "Response returned when the request is rejected.",
           "$ref": "#/$defs/RequestRejection",
@@ -5667,6 +5804,13 @@
     "ResponseGuard": {
       "type": "object",
       "properties": {
+        "policySources": {
+          "description": "Policy cards that justify this control. Reported only after an actual intervention.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicySource"
+          }
+        },
         "rejection": {
           "description": "Response returned when the LLM response is rejected.",
           "$ref": "#/$defs/RequestRejection",
@@ -5926,6 +6070,13 @@
           ],
           "default": null
         },
+        "policySources": {
+          "description": "Policy origins reported only when this particular bucket rejects a request.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicySource"
+          }
+        },
         "maxTokens": {
           "description": "Maximum number of tokens that can accumulate in the local bucket.",
           "type": "integer",
@@ -5982,6 +6133,13 @@
     "RateLimitSpec": {
       "type": "object",
       "properties": {
+        "policySources": {
+          "description": "Policy origins reported only when this particular bucket rejects a request.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PolicySource"
+          }
+        },
         "maxTokens": {
           "description": "Maximum number of tokens that can accumulate in the local bucket.",
           "type": "integer",
@@ -6338,6 +6496,14 @@
           "description": "Validate JWTs against one or more trusted token issuers.",
           "type": "object",
           "properties": {
+            "policySources": {
+              "description": "Policy origins reported only when JWT authentication rejects the request.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/PolicySource"
+              },
+              "default": []
+            },
             "mode": {
               "description": "Controls whether requests must include a JWT and how validation failures are handled.",
               "$ref": "#/$defs/Mode",
@@ -6375,6 +6541,14 @@
           "description": "Validate JWTs against a single trusted token issuer.",
           "type": "object",
           "properties": {
+            "policySources": {
+              "description": "Policy origins reported only when JWT authentication rejects the request.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/PolicySource"
+              },
+              "default": []
+            },
             "mode": {
               "description": "Controls whether requests must include a JWT and how validation failures are handled.",
               "$ref": "#/$defs/Mode",

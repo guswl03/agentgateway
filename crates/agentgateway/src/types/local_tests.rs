@@ -1365,6 +1365,9 @@ ui:
 		|route_match| matches!(&route_match.path, PathMatch::PathPrefix(path) if path.as_str() == "/api/budgets")
 	));
 	assert!(ui_route.matches.iter().any(
+		|route_match| matches!(&route_match.path, PathMatch::PathPrefix(path) if path.as_str() == "/api/policy")
+	));
+	assert!(ui_route.matches.iter().any(
 		|route_match| matches!(&route_match.path, PathMatch::Exact(path) if path.as_str() == "/oauth/callback")
 	));
 	assert!(

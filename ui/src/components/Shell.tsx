@@ -392,6 +392,7 @@ function navigationGroups(options: {
 			? [{ to: '/cel', label: 'CEL Playground', icon: Braces }]
 			: [
 					{ to: '/cel', label: 'CEL Playground', icon: Braces },
+					{ to: '/policy-import', label: '정책 팩', icon: ShieldCheck },
 					{
 						to: '/raw-config',
 						label: 'Raw Configuration',
@@ -477,6 +478,7 @@ function eyebrowForPath(path: string) {
 	if (path === '/') return 'Gateway overview';
 	if (path.startsWith('/mcp')) return 'MCP configuration';
 	if (path.startsWith('/traffic')) return 'Traffic configuration';
+	if (path.startsWith('/policy-import')) return '정책 팩';
 	if (path.startsWith('/cel') || path.startsWith('/raw-config') || path.startsWith('/settings'))
 		return 'Policy tools';
 	return 'LLM configuration';

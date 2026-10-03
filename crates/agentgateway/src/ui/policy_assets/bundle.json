@@ -1,0 +1,2113 @@
+{
+  "catalog": [
+    {
+      "id": "KR_AI_BASIC_ACT_GATEWAY_ONLY_PACK",
+      "label": "AI기본법 · 전체 팩",
+      "description": "Gateway 범위 카드. 시행령을 포함하며, 적용 경로와 실행 설정은 어댑터에서 확인합니다.",
+      "context": {
+        "policies": [
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_GATEWAY_GENERATED_HEADER_003",
+            "functions": [
+              {
+                "index": 0,
+                "parameters": {
+                  "header": "x-ai-generated"
+                }
+              }
+            ]
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_GATEWAY_STATIC_EXPLANATION_LINK_008",
+            "functions": [
+              {
+                "index": 0,
+                "parameters": {
+                  "header": "Link"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "document": {
+        "policy_packs": [
+          {
+            "pack_id": "KR_AI_BASIC_ACT_GATEWAY_ONLY_PACK",
+            "version": "2.0.0-gateway-only-review",
+            "priority": 200,
+            "cards": [
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_GATEWAY_TEXT_MARK_002"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_GATEWAY_GENERATED_HEADER_003"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_GATEWAY_STATIC_EXPLANATION_LINK_008"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_GATEWAY_REQUEST_PATTERN_BLOCK_009"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_GATEWAY_ACCESS_EVENT_LOG_011"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT_DECREE",
+                "policy_id": "KR_AI_GATEWAY_RESEARCH_JWT_SECURITY_012"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT_DECREE",
+                "policy_id": "KR_AI_GATEWAY_RESEARCH_PATTERN_BLOCK_013"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_GATEWAY_FIXED_ROUTE_STOP_014"
+              }
+            ]
+          }
+        ],
+        "cards": [
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_GATEWAY_TEXT_MARK_002",
+            "policy_text": "관리자가 지정한 비스트리밍 JSON 응답 경로와 텍스트 필드에 AI 생성 사실을 나타내는 고정 안내 문구를 Gateway 응답 본문 변환으로 삽입한다. 적용 경로·필드·문구는 설정값으로 고정하며 도구 호출 인자나 구조화 업무 데이터는 변환 대상에 포함하지 않는다. 이 카드는 통신 데이터의 문구 삽입이라는 기술적 기여만 제공하며 이용자 인식과 법정 표시 의무 전체의 충족을 판정하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+                "action": "rewrite_body",
+                "object": "AI_OUTPUT"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제31조제2항"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "revision_no": "대통령령 제36580호",
+                "promulgation_date": "2026-08-18",
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+                "provision": "제23조제2항제1호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_GATEWAY_GENERATED_HEADER_003",
+            "policy_text": "관리자가 지정한 응답 경로에 AI 생성 사실을 나타내는 고정 헤더 이름과 값을 설정한다. Gateway는 설정된 경로에 대한 헤더 전달만 수행하며 고지 완료·이용자 승인·법적 적용 여부에 관한 claim을 요구하거나 검사하지 않는다. 헤더는 기계 판독용 생성 정보 전달의 기술적 지원이고 이용자 안내 또는 법정 표시 의무 전체의 충족을 뜻하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+                "action": "set_header",
+                "object": "AI_OUTPUT"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제31조제2항"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "revision_no": "대통령령 제36580호",
+                "promulgation_date": "2026-08-18",
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+                "provision": "제23조제2항제2호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_GATEWAY_STATIC_EXPLANATION_LINK_008",
+            "policy_text": "관리자가 정한 응답 경로에 고정 설명 자료 URL을 가리키는 헤더를 설정한다. Gateway의 처리 범위는 설정된 헤더 이름과 정적 URL 값의 전달이며 설명 내용의 생성·조회·검증, 결과별 설명 자료 선택 또는 고영향 여부 판정을 포함하지 않는다. 이 링크 전달은 설명 접근 경로의 기술적 지원으로 한정하며 설명 방안의 수립·시행이나 게시 의무 전체의 충족을 표시하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+                "action": "set_header",
+                "object": "AI_OUTPUT"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제3조제2항"
+              },
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제34조제1항제2호"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "revision_no": "대통령령 제36580호",
+                "promulgation_date": "2026-08-18",
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+                "provision": "제27조제1항제2호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_GATEWAY_REQUEST_PATTERN_BLOCK_009",
+            "policy_text": "관리자가 지정한 LLM 요청 경로에서 문자열이 고정 금지 정규식에 일치하면 Gateway가 해당 요청을 거부한다. 정규식과 검사 범위는 설정값으로 고정하며 위해·기만·차별의 실질적 의미, 임상 위험 또는 고영향 해당 여부는 판정하지 않는다. 이 문자열 차단은 이용자 보호 방안의 좁은 통신 통제로만 기여하며 보호 방안 전체의 수립·운영이나 법률 준수를 확정하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-REGEX-GUARD-REQUEST",
+                "action": "reject",
+                "object": "TEXT_CONTENT"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제34조제1항제3호"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "revision_no": "대통령령 제36580호",
+                "promulgation_date": "2026-08-18",
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+                "provision": "제27조제1항제3호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_GATEWAY_ACCESS_EVENT_LOG_011",
+            "policy_text": "관리자가 지정한 Gateway 경로의 접근 이벤트를 기존 활성 접속 로그 설정으로 기록한다. 기록 대상은 접속 시각·요청 경로·응답 상태 등 관리자가 정한 기술적 항목이며 요청·응답 원문, 인증 토큰 및 비밀값의 수집은 이 카드에 포함하지 않는다. 이 카드는 Gateway 접속 이벤트 기록만을 제공하며 법정 조치 이행이나 보관 의무 전체의 충족을 표시하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-ACCESS-LOG-TRACING",
+                "action": "log_access",
+                "object": "ACCESS_LOG"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제34조제1항제5호"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "revision_no": "대통령령 제36580호",
+                "promulgation_date": "2026-08-18",
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+                "provision": "제27조제2항"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT_DECREE",
+            "policy_id": "KR_AI_GATEWAY_RESEARCH_JWT_SECURITY_012",
+            "policy_text": "관리자가 지정한 연구 API 경로에는 Gateway가 설정된 발급자·검증키·대상·유효기간을 사용하여 검증한 JWT가 있는 요청만 통과시키도록 strict 인증을 적용한다. JWT 검사는 통신 인증으로 한정하며 연구소 자격·허가·동의·업무 승인이나 연구 자료의 법적 처리 근거를 claim으로 확인하지 않는다. 이 통제는 연구 데이터 보호의 기술적 보안 부분에만 기여하며 연구소 보안 대책 또는 설립 요건 전체를 충족한다고 판정하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "require_jwt",
+                "object": "TRAINING_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "revision_no": "대통령령 제36580호",
+                "promulgation_date": "2026-08-18",
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+                "provision": "제16조의2제2항제2호"
+              },
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제22조의2제2항제3호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT_DECREE",
+            "policy_id": "KR_AI_GATEWAY_RESEARCH_PATTERN_BLOCK_013",
+            "policy_text": "관리자가 지정한 연구 API의 LLM 요청 문자열에서 관리자가 정한 자료 식별 표식 또는 비밀값 형식의 고정 정규식이 일치하면 Gateway가 전달을 거부한다. Gateway는 해당 문자열 패턴만 검사하며 자료 분류 조회·반출 승인·기밀 의미 판정·개인정보 처리의 적법성 판정을 수행하지 않는다. 이 통제는 명시적 문자열 유출 차단의 기술적 지원으로 한정하며 연구 데이터 보호 대책 전체를 충족한다고 판정하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-REGEX-GUARD-REQUEST",
+                "action": "reject",
+                "object": "TRAINING_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "revision_no": "대통령령 제36580호",
+                "promulgation_date": "2026-08-18",
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288781&efYd=20260820",
+                "provision": "제16조의2제2항제2호"
+              },
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제22조의2제2항제3호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_GATEWAY_FIXED_ROUTE_STOP_014",
+            "policy_text": "관리자가 차단 대상으로 지정한 고정 Gateway 경로와 메서드의 요청을 상수 거부 조건으로 차단한다. 차단 목록의 설정·변경과 배포 시점은 관리자 설정으로 고정하며 Gateway는 명령 문서를 조회하거나 중지·시정 명령의 진위·적용 범위·유효기간 또는 법적 의무를 판정하지 않는다. 이 카드는 선택한 경로의 요청 차단이라는 기술적 조치만 제공하며 명령 이행 전체의 완료를 확인하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "authorize_require",
+                "object": "AI_SERVICE"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "revision_no": "법률 제21311호",
+                "promulgation_date": "2026-01-20",
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=282791&efYd=20260721",
+                "provision": "제40조제3항"
+              }
+            ],
+            "except": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "KR_MEDICAL_ACT_GATEWAY_ONLY_PACK",
+      "label": "의료법 · 전체 팩",
+      "description": "Gateway 범위 카드. 시행령을 포함하며, 적용 경로와 실행 설정은 어댑터에서 확인합니다.",
+      "context": {
+        "policies": []
+      },
+      "document": {
+        "policy_packs": [
+          {
+            "pack_id": "KR_MEDICAL_ACT_GATEWAY_ONLY_PACK",
+            "version": "2.0.0-gateway-only-review",
+            "priority": 300,
+            "cards": [
+              {
+                "law_id": "KR_MEDICAL_ACT",
+                "policy_id": "KR_MEDICAL_INFECTION_REPORT_IDENTIFIERS_017_GW"
+              },
+              {
+                "law_id": "KR_MEDICAL_ACT_DECREE",
+                "policy_id": "KR_MEDICAL_TRANSFER_ACCESS_ROLE_022_GW"
+              },
+              {
+                "law_id": "KR_MEDICAL_ACT_DECREE",
+                "policy_id": "KR_MEDICAL_TRANSFER_AUTHENTICATION_023_GW"
+              },
+              {
+                "law_id": "KR_MEDICAL_ACT_DECREE",
+                "policy_id": "KR_MEDICAL_TRANSFER_ACCESS_LOG_024_GW"
+              },
+              {
+                "law_id": "KR_MEDICAL_ACT",
+                "policy_id": "KR_MEDICAL_AD_STOP_ORDER_029_GW"
+              }
+            ]
+          }
+        ],
+        "cards": [
+          {
+            "law_id": "KR_MEDICAL_ACT",
+            "policy_id": "KR_MEDICAL_INFECTION_REPORT_IDENTIFIERS_017_GW",
+            "policy_text": "관리자가 의료관련감염 자율보고의 검증 후 분석·활용용 전달 경로로 지정한 구조화 요청에서는 설정된 개인식별 필드를 Gateway에서 삭제하여 전달한다. 최초 보고 경로에는 적용하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+                "action": "remove_field",
+                "object": "IDENTIFIER_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "의료법",
+                "revision_no": "법률 제21490호",
+                "promulgation_date": "2026-03-24",
+                "effective_date": "2026-10-02",
+                "provision": "제47조제10항",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_MEDICAL_ACT_DECREE",
+            "policy_id": "KR_MEDICAL_TRANSFER_ACCESS_ROLE_022_GW",
+            "policy_text": "진료기록전송지원시스템의 지정 HTTP 경로에서는 이미 검증되는 보안 토큰의 역할·scope와 관리자가 설정한 고정 접근 규칙을 비교하여 요청을 허용하거나 거절한다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "authorize_require",
+                "object": "DATA_STORE"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "의료법 시행령",
+                "revision_no": "대통령령 제36083호",
+                "promulgation_date": "2026-02-10",
+                "effective_date": "2026-02-10",
+                "provision": "제10조의6제1항제2호",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283151&efYd=20260210"
+              },
+              {
+                "level": "LAW",
+                "law_name": "의료법",
+                "revision_no": "법률 제21490호",
+                "promulgation_date": "2026-03-24",
+                "effective_date": "2026-10-02",
+                "provision": "제21조의2제4항·제5항제1호",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_MEDICAL_ACT_DECREE",
+            "policy_id": "KR_MEDICAL_TRANSFER_AUTHENTICATION_023_GW",
+            "policy_text": "진료기록전송지원시스템의 지정 HTTP 경로는 설정된 발급자·공개키·대상 시스템·만료 검증을 통과한 JWT가 있는 요청만 전달한다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "require_jwt",
+                "object": "USER"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "의료법 시행령",
+                "revision_no": "대통령령 제36083호",
+                "promulgation_date": "2026-02-10",
+                "effective_date": "2026-02-10",
+                "provision": "제10조의6제1항제2호",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283151&efYd=20260210"
+              },
+              {
+                "level": "LAW",
+                "law_name": "의료법",
+                "revision_no": "법률 제21490호",
+                "promulgation_date": "2026-03-24",
+                "effective_date": "2026-10-02",
+                "provision": "제21조의2제5항제1호",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_MEDICAL_ACT_DECREE",
+            "policy_id": "KR_MEDICAL_TRANSFER_ACCESS_LOG_024_GW",
+            "policy_text": "진료기록전송지원시스템의 지정 경로를 통과하는 요청의 시각·경로·결과 등 Gateway 접속 이벤트를 기존 접속 로그 설정으로 기록한다.",
+            "function": [
+              {
+                "function_id": "AGW-ACCESS-LOG-TRACING",
+                "action": "log_access",
+                "object": "ACCESS_LOG"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "의료법 시행령",
+                "revision_no": "대통령령 제36083호",
+                "promulgation_date": "2026-02-10",
+                "effective_date": "2026-02-10",
+                "provision": "제10조의6제1항제6호",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283151&efYd=20260210"
+              },
+              {
+                "level": "LAW",
+                "law_name": "의료법",
+                "revision_no": "법률 제21490호",
+                "promulgation_date": "2026-03-24",
+                "effective_date": "2026-10-02",
+                "provision": "제21조의2제5항제1호",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_MEDICAL_ACT",
+            "policy_id": "KR_MEDICAL_AD_STOP_ORDER_029_GW",
+            "policy_text": "관리자가 중지 대상으로 지정한 의료광고 게시·배포 HTTP 경로에는 고정 거절 규칙을 적용하여 백엔드 전달을 차단한다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "authorize_require",
+                "object": "OUTPUT_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "의료법",
+                "revision_no": "법률 제21490호",
+                "promulgation_date": "2026-03-24",
+                "effective_date": "2026-10-02",
+                "provision": "제63조제2항제1호",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+              },
+              {
+                "level": "LAW",
+                "law_name": "의료법",
+                "revision_no": "법률 제21490호",
+                "promulgation_date": "2026-03-24",
+                "effective_date": "2026-10-02",
+                "provision": "제56조제2항·제3항",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+              }
+            ],
+            "except": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "KR_PIPA_GATEWAY_ONLY_PACK",
+      "label": "개인정보보호법 · 전체 팩",
+      "description": "Gateway 범위 카드. 시행령을 포함하며, 적용 경로와 실행 설정은 어댑터에서 확인합니다.",
+      "context": {
+        "policies": []
+      },
+      "document": {
+        "policy_packs": [
+          {
+            "pack_id": "KR_PIPA_GATEWAY_ONLY_PACK",
+            "version": "2.0.0-gateway-only-review",
+            "priority": 100,
+            "cards": [
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_MINIMUM_FIELDS_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_FIXED_PROCESSOR_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_LEAST_PRIVILEGE_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_PSEUDONYM_EXTRA_REMOVE_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_OVERSEAS_STOP_ORDER_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_GATEWAY_ACCESS_LOG_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_PUBLIC_RESPONSE_EXPOSURE_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA_DECREE",
+                "policy_id": "KR_PIPA_DECREE_TRANSFER_FLOOD_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_INCIDENT_CONTAINMENT_001_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_LLM_REQUEST_PATTERN_MASK_GW"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_LLM_RESPONSE_PATTERN_MASK_GW"
+              }
+            ]
+          }
+        ],
+        "cards": [
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_MINIMUM_FIELDS_001_GW",
+            "policy_text": "지정된 구조화 HTTP 요청 경로에서 관리자가 전달 제외 대상으로 설정한 필드만 삭제하여 백엔드로 보내는 개인정보를 줄인다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+                "action": "remove_field",
+                "object": "FIELD_SET"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제16조제1항"
+              },
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제3조제1항"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_FIXED_PROCESSOR_001_GW",
+            "policy_text": "지정된 HTTP 요청 경로는 관리자가 설정한 단일 기존 백엔드로만 전달하고 요청 본문의 임의 목적지로 라우팅하지 않는다.",
+            "function": [
+              {
+                "function_id": "AGW-MODEL-DESTINATION-SELECT-REQUEST",
+                "action": "route_to_backend",
+                "object": "PROCESSOR"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제26조제5항"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+                "provision": "제28조제1항"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_LEAST_PRIVILEGE_001_GW",
+            "policy_text": "개인정보 처리용 지정 API는 JWT 서명·발급자·audience·만료를 검증하고 토큰 역할·scope와 고정 경로·메서드 접근 규칙에 맞는 요청만 전달한다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "require_jwt",
+                "object": "USER"
+              },
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "authorize_require",
+                "object": "PERSONAL_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제28조제1항"
+              },
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제59조제2호"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+                "provision": "제30조제1항제2호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_PSEUDONYM_EXTRA_REMOVE_001_GW",
+            "policy_text": "관리자가 가명정보 제공용으로 지정한 구조화 요청 경로에서 재식별용 추가정보 필드로 설정한 항목을 삭제하여 전달한다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+                "action": "remove_field",
+                "object": "ADDITIONAL_INFORMATION"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제28조의2제2항"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_OVERSEAS_STOP_ORDER_001_GW",
+            "policy_text": "관리자가 중지 대상으로 지정한 국외 전달용 HTTP 경로에 고정 거절 규칙을 적용하여 해당 백엔드로의 전달을 차단한다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "authorize_require",
+                "object": "OVERSEAS_RECIPIENT"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제28조의9제1항"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+                "provision": "제29조의11제3항"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_GATEWAY_ACCESS_LOG_001_GW",
+            "policy_text": "지정된 개인정보 처리 API의 요청 시각·경로·처리 결과 등 Gateway 접근 이벤트를 기존 접속 로그 설정으로 기록한다.",
+            "function": [
+              {
+                "function_id": "AGW-ACCESS-LOG-TRACING",
+                "action": "log_access",
+                "object": "ACCESS_LOG"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제29조"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+                "provision": "제30조제1항제5호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_PUBLIC_RESPONSE_EXPOSURE_001_GW",
+            "policy_text": "공개용 LLM 응답 텍스트에서 관리자가 설정한 주민등록번호·계좌번호·신용카드번호 등의 노출 차단 정규식에 일치하면 응답 전달을 거절한다.",
+            "function": [
+              {
+                "function_id": "AGW-REGEX-GUARD-RESPONSE",
+                "action": "reject",
+                "object": "PERSONAL_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제34조의2제1항"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA_DECREE",
+            "policy_id": "KR_PIPA_DECREE_TRANSFER_FLOOD_001_GW",
+            "policy_text": "지정된 개인정보 전송 API에서 관리자가 정한 요청 횟수·시간 구간·주체별 제한값을 적용하여 반복 접근으로 인한 전산설비 과부하를 줄인다.",
+            "function": [
+              {
+                "function_id": "AGW-RATE-BUDGET-LIMIT",
+                "action": "limit_requests",
+                "object": null
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제35조의3제3항제2호"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+                "provision": "제42조의13"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+                "provision": "별표 1의3제2호파목"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+                "provision": "별표 1의3제3호가목"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_INCIDENT_CONTAINMENT_001_GW",
+            "policy_text": "관리자가 추가 전달을 중지하기로 지정한 개인정보 처리 HTTP 경로에 고정 거절 규칙을 적용하여 백엔드 전달을 차단한다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "authorize_require",
+                "object": "PERSONAL_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제34조제3항"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+                "provision": "제39조제1항제1호"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_LLM_REQUEST_PATTERN_MASK_GW",
+            "policy_text": "지정된 LLM 요청의 텍스트에서 관리자가 설정한 개인정보 문자열 패턴에 일치하는 부분을 치환하여 외부 모델에 보내는 원문 노출을 줄인다.",
+            "function": [
+              {
+                "function_id": "AGW-REGEX-GUARD-REQUEST",
+                "action": "mask",
+                "object": "PERSONAL_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제29조"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_LLM_RESPONSE_PATTERN_MASK_GW",
+            "policy_text": "공개용 비스트리밍 LLM 응답 텍스트에서 관리자가 설정한 개인정보 문자열 패턴에 일치하는 부분을 치환하여 전달한다.",
+            "function": [
+              {
+                "function_id": "AGW-REGEX-GUARD-RESPONSE",
+                "action": "mask",
+                "object": "PERSONAL_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제29조"
+              },
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+                "provision": "제34조의2제1항"
+              }
+            ],
+            "except": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "KR_PIPA_SAMPLE_PACK",
+      "label": "개인정보 보호법 · 임시 3카드",
+      "description": "원본 정책 팩. 누락된 실행 정보는 어댑터에서 확인합니다.",
+      "context": {
+        "policies": []
+      },
+      "document": {
+        "policy_packs": [
+          {
+            "pack_id": "KR_PIPA_SAMPLE_PACK",
+            "version": "0.1.0-draft",
+            "priority": 100,
+            "cards": [
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_MINIMUM_COLLECTION_001"
+              },
+              {
+                "law_id": "KR_PIPA",
+                "policy_id": "KR_PIPA_OVERSEAS_TRANSFER_002"
+              },
+              {
+                "law_id": "KR_PIPA_DECREE",
+                "policy_id": "KR_PIPA_ACCESS_LOG_003"
+              }
+            ]
+          }
+        ],
+        "cards": [
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_MINIMUM_COLLECTION_001",
+            "policy_text": "AI Gateway를 통해 개인정보를 새로 수집하는 요청에서 처리 목적에 필요하지 않은 것으로 사전 검토된 개인정보 필드는 전송 전에 제거한다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+                "action": "remove_field",
+                "object": "DATA_FIELD"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "provision": "제16조제1항",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://law.go.kr/LSW/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1020399353"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA",
+            "policy_id": "KR_PIPA_OVERSEAS_TRANSFER_002",
+            "policy_text": "개인정보를 국외의 모델 또는 백엔드로 이전하는 요청은 국외 이전의 적법 근거와 승인된 목적지가 확인된 경우에만 해당 목적지로 라우팅한다.",
+            "function": [
+              {
+                "function_id": "AGW-MODEL-DESTINATION-SELECT-REQUEST",
+                "action": "route_to_backend",
+                "object": "PERSONAL_DATA"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "provision": "제28조의8제1항",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1029335589"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_PIPA_DECREE",
+            "policy_id": "KR_PIPA_ACCESS_LOG_003",
+            "policy_text": "개인정보처리시스템으로 분류된 Gateway 경로의 접속일시와 처리내역 등 접근 이벤트를 기록하여 접속기록의 저장·점검 및 후속 보관·위변조 방지 절차에 전달한다.",
+            "function": [
+              {
+                "function_id": "AGW-ACCESS-LOG-TRACING",
+                "action": "log_access",
+                "object": "ACCESS_LOG"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "개인정보 보호법",
+                "provision": "제29조",
+                "revision_no": "법률 제21445호",
+                "promulgation_date": "2026-03-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://law.go.kr/LSW/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1029332029"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "개인정보 보호법 시행령",
+                "provision": "제30조제1항제5호",
+                "revision_no": "대통령령 제36671호",
+                "promulgation_date": "2026-09-10",
+                "effective_date": "2026-09-11",
+                "source_url": "https://law.go.kr/LSW/lsLawLinkInfo.do?chrClsCd=010202&lsJoLnkSeq=900079401"
+              }
+            ],
+            "except": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "KR_AI_BASIC_ACT_SAMPLE_PACK",
+      "label": "인공지능 기본법 · 임시 3카드",
+      "description": "원본 정책 팩. 누락된 실행 정보는 어댑터에서 확인합니다.",
+      "context": {
+        "policies": []
+      },
+      "document": {
+        "policy_packs": [
+          {
+            "pack_id": "KR_AI_BASIC_ACT_SAMPLE_PACK",
+            "version": "0.1.0-draft",
+            "priority": 200,
+            "cards": [
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_TRANSPARENCY_GENERATIVE_001"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_SAFETY_MONITORING_002"
+              },
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_HIGH_IMPACT_HUMAN_OVERSIGHT_003"
+              }
+            ]
+          }
+        ],
+        "cards": [
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_TRANSPARENCY_GENERATIVE_001",
+            "policy_text": "생성형 인공지능이 생성한 응답을 제공하는 경우 Gateway 응답에 AI 생성 사실을 사람이 인식하거나 기계가 판독할 수 있는 표시 정보로 포함한다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+                "action": "set_header",
+                "object": "AI_OUTPUT"
+              },
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+                "action": "rewrite_body",
+                "object": "AI_OUTPUT"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "provision": "제31조제2항",
+                "revision_no": null,
+                "promulgation_date": null,
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1031810729"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "provision": "제23조제2항",
+                "revision_no": null,
+                "promulgation_date": null,
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lspttninfSeq=198075"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_SAFETY_MONITORING_002",
+            "policy_text": "안전성 확보 의무 대상 인공지능시스템의 Gateway 호출은 안전사고 모니터링과 대응에 활용할 수 있도록 접근 이벤트와 요청 처리 경로를 기록한다.",
+            "function": [
+              {
+                "function_id": "AGW-ACCESS-LOG-TRACING",
+                "action": "log_access",
+                "object": "LOG"
+              },
+              {
+                "function_id": "AGW-ACCESS-LOG-TRACING",
+                "action": "trace",
+                "object": "LOG"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "provision": "제32조제1항제2호",
+                "revision_no": null,
+                "promulgation_date": null,
+                "effective_date": "2026-07-21",
+                "source_url": "https://law.go.kr/LSW/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1031810739"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "provision": "제24조제1항",
+                "revision_no": null,
+                "promulgation_date": null,
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsSideInfoP.do?docCls=jo&joBrNo=00&joNo=0024&lsiSeq=288781&urlMode=lsScJoRltInfoR"
+              }
+            ],
+            "except": []
+          },
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_HIGH_IMPACT_HUMAN_OVERSIGHT_003",
+            "policy_text": "고영향 인공지능의 중요 실행 경로는 지정된 사람의 관리·감독 절차에 연결된 승인 컨텍스트가 확인된 요청만 통과시키고, 해당 실행 이벤트를 기록한다.",
+            "function": [
+              {
+                "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+                "action": "authorize_require",
+                "object": "AI_SYSTEM"
+              },
+              {
+                "function_id": "AGW-ACCESS-LOG-TRACING",
+                "action": "log_access",
+                "object": "LOG"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "provision": "제34조제1항제4호",
+                "revision_no": null,
+                "promulgation_date": null,
+                "effective_date": "2026-07-21",
+                "source_url": "https://law.go.kr/LSW/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1031809511"
+              }
+            ],
+            "except": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "CODEX_AI_DISCLOSURE_TEST_PACK",
+      "label": "AI 생성 표시 · Codex / LLM 채팅 요청 지시 테스트",
+      "description": "채팅과 Responses 요청 형식에 맞춰 표시 지시를 추가합니다. 모델의 표시 준수는 보장되지 않습니다.",
+      "context": {
+        "policies": [
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_TRANSPARENCY_GENERATIVE_001",
+            "applies_when": {
+              "in": {
+                "fact": "request.path",
+                "value": [
+                  "/backend-api/codex/responses",
+                  "/v1/responses",
+                  "/responses",
+                  "/v1/chat/completions",
+                  "/chat/completions"
+                ]
+              }
+            },
+            "scope": {
+              "target_ref": "route:0"
+            },
+            "function_combination": "all",
+            "functions": [
+              {
+                "index": 0,
+                "parameters": {
+                  "instruction_text": "사용자에게 보여주는 모든 최종 답변의 맨 앞에 \"AI로 생성된 응답입니다.\"를 한 번 표시하세요. 도구 호출 인자와 구조화된 출력 형식은 변경하지 마세요."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "document": {
+        "policy_packs": [
+          {
+            "pack_id": "CODEX_AI_DISCLOSURE_TEST_PACK",
+            "version": "0.1-test",
+            "priority": 300,
+            "cards": [
+              {
+                "law_id": "KR_AI_BASIC_ACT",
+                "policy_id": "KR_AI_TRANSPARENCY_GENERATIVE_001"
+              }
+            ]
+          }
+        ],
+        "cards": [
+          {
+            "law_id": "KR_AI_BASIC_ACT",
+            "policy_id": "KR_AI_TRANSPARENCY_GENERATIVE_001",
+            "policy_text": "생성형 인공지능이 생성한 응답을 제공하는 경우 Gateway 응답에 AI 생성 사실을 사람이 인식하거나 기계가 판독할 수 있는 표시 정보로 포함한다.",
+            "function": [
+              {
+                "function_id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+                "action": "rewrite_body",
+                "object": "AI_OUTPUT"
+              }
+            ],
+            "legal_sources": [
+              {
+                "level": "LAW",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법",
+                "provision": "제31조제2항",
+                "revision_no": null,
+                "promulgation_date": null,
+                "effective_date": "2026-07-21",
+                "source_url": "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1031810729"
+              },
+              {
+                "level": "ENFORCEMENT_DECREE",
+                "law_name": "인공지능 발전과 신뢰 기반 조성 등에 관한 기본법 시행령",
+                "provision": "제23조제2항",
+                "revision_no": null,
+                "promulgation_date": null,
+                "effective_date": "2026-08-20",
+                "source_url": "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lspttninfSeq=198075"
+              }
+            ],
+            "except": []
+          }
+        ]
+      }
+    }
+  ],
+  "common_codes": [
+    "ABOUT_SUBJECT",
+    "ACCESS",
+    "ACCESS_COUNTRY",
+    "ACCESS_LOG",
+    "ACTED_BY",
+    "ACTOR",
+    "ADDITIONAL_INFORMATION",
+    "AI_MODEL",
+    "AI_OUTPUT",
+    "AI_PRODUCT",
+    "AI_SERVICE",
+    "AI_SYSTEM",
+    "ANONYMOUS_DATA",
+    "AUDIO_CONTENT",
+    "BIOMETRIC_DATA",
+    "CHILD_DATA_SUBJECT",
+    "COLLECT",
+    "COMBINATION_AGENCY",
+    "COMBINE",
+    "COMPLIANCE_EVIDENCE",
+    "CONSENT_RECORD",
+    "CONSENT_SCOPE",
+    "CONTRACT",
+    "CONTROLLED_BY",
+    "CONTROLLER",
+    "CORRECT",
+    "CREATE",
+    "DATASET",
+    "DATA_FIELD",
+    "DATA_STORE",
+    "DATA_SUBJECT",
+    "DECISION_RESULT",
+    "DELETE",
+    "DELETION_RECORD",
+    "DESTINATION_COUNTRY",
+    "DESTINATION_SYSTEM",
+    "DETECT_INCIDENT",
+    "DISCLOSE",
+    "DOCUMENT",
+    "ENTRUST",
+    "EVALUATION_RESULT",
+    "EVIDENCED_BY",
+    "EVIDENCE_REF",
+    "EVIDENCE_SCOPE",
+    "EXTERNAL_SYSTEM",
+    "FIELD_SET",
+    "GROUP",
+    "IDENTIFIER_DATA",
+    "IMAGE_CONTENT",
+    "INCIDENT_RECORD",
+    "INPUT_DATA",
+    "JURISDICTION",
+    "LEGAL_BASIS",
+    "LEGAL_REPRESENTATIVE",
+    "LOG",
+    "MISMATCH",
+    "NOTIFY_INCIDENT",
+    "OUTPUT_DATA",
+    "OVERSEAS_RECIPIENT",
+    "PERSON",
+    "PERSONAL_DATA",
+    "PREDICTION_RESULT",
+    "PROCESSED_BY",
+    "PROCESSING_ACTIVITY",
+    "PROCESSING_RECORD",
+    "PROCESSOR",
+    "PROVIDE",
+    "PSEUDONYMIZATION_RECORD",
+    "PSEUDONYMIZE",
+    "PSEUDONYMIZED_DATA",
+    "PUBLIC_BODY",
+    "PURPOSE",
+    "RECEIVED_FROM",
+    "RECIPIENT",
+    "RECOMMENDATION_RESULT",
+    "REIDENTIFY",
+    "REQUEST_ACCESS",
+    "REQUEST_CORRECTION",
+    "REQUEST_DELETION",
+    "REQUEST_STOP_PROCESSING",
+    "REQUEST_TIME",
+    "RESIDENT_REGISTRATION_NUMBER",
+    "RETAIN",
+    "RETENTION_EXPIRY",
+    "RETENTION_PERIOD",
+    "RETENTION_RECORD",
+    "RIGHTS_REQUEST_RECORD",
+    "SENSITIVE_DATA",
+    "SENT_TO",
+    "SOURCE_SYSTEM",
+    "STATUS",
+    "STOP_PROCESSING",
+    "STORE",
+    "SUBJECT_AGE_BAND",
+    "SUBPROCESSOR",
+    "TEXT_CONTENT",
+    "THIRD_PARTY_RECIPIENT",
+    "TRAINING_DATA",
+    "TRANSFER_ABROAD",
+    "TRANSFER_RECORD",
+    "UNIQUE_IDENTIFIER_DATA",
+    "UNKNOWN",
+    "USE",
+    "USER",
+    "VALID_UNTIL",
+    "VERIFIED",
+    "VERIFIED_AT",
+    "VIDEO_CONTENT",
+    "WITHDRAW_CONSENT"
+  ],
+  "mapping": {
+    "dictionary_id": "FHIR_R4_COMMON_MINIMUM",
+    "version": "0.2.0-draft",
+    "status": "draft",
+    "standard": {
+      "name": "HL7 FHIR",
+      "release": "R4",
+      "version": "4.0.1",
+      "format": "JSON"
+    },
+    "scope": "팩 ID와 독립적인 공통 object별 FHIR 후보 매핑 및 비FHIR 대상 구분. 경로는 실행 승인 목록이 아님.",
+    "path_notation": "FHIR 요소 경로. []는 배열의 각 항목, [x]는 실제 타입에 따른 선택 요소. 실행용 JSONPath나 FHIRPath가 아니며 어댑터가 실제 경로로 변환해야 한다.",
+    "status_definitions": {
+      "scoped_mapping": "기재한 의미와 조건 안에서 연결 가능한 매핑. 해당 object 전체의 완전한 탐색을 뜻하지 않는다.",
+      "conditional_candidate": "FHIR 저장 위치는 확인되지만 분류·승인 정보가 있어야 대상 필드를 확정할 수 있는 후보. 조건을 확인하기 전 실행 대상으로 사용하지 않는다.",
+      "non_fhir": "기본 FHIR 필드로 확정할 수 없는 대상. 서비스 컨텍스트·로그·출력 위치를 별도로 연결해야 함."
+    },
+    "objects": [
+      {
+        "object": "PERSONAL_DATA",
+        "status": "scoped_mapping",
+        "mappings": [
+          {
+            "resource_type": "Patient",
+            "element_paths": [
+              "Patient.name[]",
+              "Patient.telecom[].value",
+              "Patient.address[]",
+              "Patient.birthDate",
+              "Patient.identifier[].value"
+            ],
+            "meaning": "환자의 이름, 연락처, 주소, 생년월일, 업무 식별값",
+            "conditions": [
+              "사람에 관한 실제 환자 데이터이며 개인과 연결 가능한 값임을 확인한다. 익명화 데이터나 동물 환자를 자동 포함하지 않는다."
+            ],
+            "source_url": "https://hl7.org/fhir/R4/patient-definitions.html"
+          }
+        ],
+        "limitations": [
+          "Patient 리소스 전체를 무조건 마스킹하는 규칙이 아니다. 이름과 주소는 복합 요소이므로 실제 하위 값 처리와 중복 표기를 확인해야 한다.",
+          "다른 리소스의 개인정보, 자유서술문, 확장 요소, 첨부파일은 이 최소 매핑에 포함하지 않는다."
+        ],
+        "mapping_role": "candidate_only",
+        "required_resolution": [
+          "검토된 분류 조건",
+          "실제 데이터 위치 및 적용 범위"
+        ]
+      },
+      {
+        "object": "DATA_FIELD",
+        "status": "conditional_candidate",
+        "mappings": [
+          {
+            "resource_type": "Patient",
+            "element_paths": [
+              "Patient.telecom[].value",
+              "Patient.address[]",
+              "Patient.birthDate"
+            ],
+            "meaning": "처리 목적상 불필요한 수집 항목으로 검토할 수 있는 필드 위치의 예",
+            "conditions": [
+              "처리 목적과 승인된 초과 수집 필드 목록이 있어야 한다.",
+              "목록에 명시적으로 포함된 실제 필드만 remove_field 대상으로 선택한다. 여기에 적힌 경로 자체는 삭제 승인 목록이 아니다."
+            ],
+            "source_url": "https://hl7.org/fhir/R4/patient-definitions.html"
+          }
+        ],
+        "limitations": [
+          "DATA_FIELD는 모든 FHIR 요소에 적용 가능한 넓은 개념이다. 최소 예시만 기재했다.",
+          "필수 요소·프로파일 제약·배열 요소를 고려해 삭제 후 유효성을 확인해야 한다."
+        ],
+        "mapping_role": "candidate_only",
+        "required_resolution": [
+          "검토된 분류 조건",
+          "실제 데이터 위치 및 적용 범위",
+          "처리 목적별 승인된 삭제 필드 목록; 후보 경로 전체 삭제 금지"
+        ]
+      },
+      {
+        "object": "SENSITIVE_DATA",
+        "status": "conditional_candidate",
+        "mappings": [
+          {
+            "resource_type": "Condition",
+            "element_paths": [
+              "Condition.code",
+              "Condition.bodySite[]",
+              "Condition.note[].text"
+            ],
+            "meaning": "환자의 진단·질환·상태, 신체 부위, 그에 대한 설명 중 건강정보로 분류된 내용",
+            "conditions": [
+              "Condition.subject가 사람인 Patient를 가리킴을 확인한다.",
+              "code와 본문 의미를 확인하여 사람의 건강정보인 필드만 선택한다. note는 실제 건강정보가 포함된 경우에만 포함한다."
+            ],
+            "source_url": "https://hl7.org/fhir/R4/condition-definitions.html"
+          },
+          {
+            "resource_type": "Observation",
+            "element_paths": [
+              "Observation.code",
+              "Observation.value[x]",
+              "Observation.component[].code",
+              "Observation.component[].value[x]",
+              "Observation.note[].text"
+            ],
+            "meaning": "환자 검사·측정 항목과 결과 중 건강정보로 분류된 내용",
+            "conditions": [
+              "Observation.subject가 사람인 Patient를 가리킴을 확인한다.",
+              "관찰 코드·프로파일·결과 내용을 통해 사람의 건강정보임을 확인한다. 기기나 환경 관찰은 자동 포함하지 않는다."
+            ],
+            "source_url": "https://hl7.org/fhir/R4/observation-definitions.html"
+          }
+        ],
+        "limitations": [
+          "민감정보 중 건강정보의 일부만 다룬다. 사상·신념·유전·생체인식 등 나머지 범주를 포괄하지 않는다.",
+          "meta.security는 분류 판단의 보조 자료이지 실제 마스킹할 건강정보 값 자체가 아니다.",
+          "CodeableConcept는 coding과 text를 함께 검토하고, Quantity 등 타입이 있는 결과에 문자열을 덮어써 FHIR 형식을 깨뜨리지 않는다. 마스킹 방법은 별도로 정해야 한다."
+        ],
+        "mapping_role": "candidate_only",
+        "required_resolution": [
+          "검토된 분류 조건",
+          "실제 데이터 위치 및 적용 범위"
+        ]
+      },
+      {
+        "object": "UNIQUE_IDENTIFIER_DATA",
+        "status": "conditional_candidate",
+        "mappings": [
+          {
+            "resource_type": "Patient",
+            "element_paths": [
+              "Patient.identifier[].value"
+            ],
+            "classification_paths": [
+              "Patient.identifier[].system",
+              "Patient.identifier[].type"
+            ],
+            "meaning": "법률상 고유식별정보로 별도 확인된 식별값을 담는 후보 위치",
+            "conditions": [
+              "해당 identifier 항목의 system 또는 승인된 프로파일과 발급기관 정보를 통해 국내 법률상 고유식별정보 범주임을 확인한다.",
+              "실제 운영에서 사용하는 identifier.system과 법적 식별종류의 승인된 매핑이 필요하다. 현재 그 값은 제공되지 않았다.",
+              "type 코드나 숫자 모양만으로 확정하지 않는다."
+            ],
+            "source_url": "https://hl7.org/fhir/R4/patient-definitions.html",
+            "datatype_source_url": "https://hl7.org/fhir/R4/datatypes-definitions.html#Identifier"
+          }
+        ],
+        "limitations": [
+          "조건을 충족하는 실제 항목은 아직 확정되지 않았다. FHIR에는 한국 고유식별정보를 나타내는 전용 기본 필드가 없다.",
+          "환자번호, 리소스 id, UUID, 미국 SSN을 국내 법률상 고유식별정보로 자동 매핑하지 않는다.",
+          "동일 식별값이 Reference.identifier 등에 있으면 참조 일관성과 중복 노출을 별도로 처리해야 한다."
+        ],
+        "mapping_role": "candidate_only",
+        "required_resolution": [
+          "검토된 분류 조건",
+          "실제 데이터 위치 및 적용 범위"
+        ]
+      },
+      {
+        "object": "ACCESS_LOG",
+        "status": "scoped_mapping",
+        "mappings": [
+          {
+            "resource_type": "AuditEvent",
+            "element_paths": [
+              "AuditEvent.action",
+              "AuditEvent.type",
+              "AuditEvent.subtype[]",
+              "AuditEvent.recorded",
+              "AuditEvent.agent[]",
+              "AuditEvent.entity[]",
+              "AuditEvent.outcome"
+            ],
+            "meaning": "FHIR 접근·읽기 사건의 감사 기록",
+            "conditions": [
+              "action=R이고 type/subtype와 entity를 통해 실제 읽기·조회 접근 사건임을 확인한다. 모든 AuditEvent가 접속기록인 것은 아니다."
+            ],
+            "source_url": "https://hl7.org/fhir/R4/auditevent.html"
+          }
+        ],
+        "limitations": [
+          "로그 기록의 표현 매핑이며 이 필드들을 마스킹하라는 의미가 아니다.",
+          "AgentGateway 접근 로그가 자동으로 FHIR AuditEvent 형식이 되는 것은 아니다. 필요하면 로그 변환기가 따로 있어야 한다.",
+          "보관 기간·점검·위변조 방지와 현재 요청의 접속 사실을 이 매핑만으로 보장하지 않는다."
+        ],
+        "mapping_role": "candidate_only",
+        "required_resolution": [
+          "검토된 분류 조건",
+          "실제 데이터 위치 및 적용 범위"
+        ]
+      },
+      {
+        "object": "AI_OUTPUT",
+        "status": "non_fhir",
+        "mappings": [],
+        "meaning": "AI 산출물은 기본 FHIR 필드 하나로 확정할 수 없음",
+        "mapping_role": "candidate_only",
+        "required_resolution": [
+          "응답의 실제 위치·형식",
+          "AI 생성 여부의 신뢰된 컨텍스트",
+          "표시할 헤더·본문 내용"
+        ],
+        "limitations": [
+          "임의의 FHIR 경로를 만들어 대응하지 않음"
+        ]
+      },
+      {
+        "object": "AI_SYSTEM",
+        "status": "non_fhir",
+        "mappings": [],
+        "meaning": "AI 시스템과 감독 승인 정보는 FHIR 리소스 자체와 별개의 실행 컨텍스트",
+        "mapping_role": "candidate_only",
+        "required_resolution": [
+          "대상 시스템·경로",
+          "승인 상태의 신뢰된 출처·유효범위"
+        ],
+        "limitations": [
+          "임의의 FHIR 경로를 만들어 대응하지 않음"
+        ]
+      },
+      {
+        "object": "LOG",
+        "status": "non_fhir",
+        "mappings": [],
+        "meaning": "Gateway 로그·추적은 기본 FHIR 필드 매핑 대상이 아님",
+        "mapping_role": "candidate_only",
+        "required_resolution": [
+          "로그 필드·수신처",
+          "추적 수집기·샘플링"
+        ],
+        "limitations": [
+          "임의의 FHIR 경로를 만들어 대응하지 않음"
+        ]
+      }
+    ],
+    "excluded": [
+      {
+        "object": null,
+        "reason": "목적지 선택·인증·인가처럼 데이터 object가 없는 기능은 FHIR 리소스 매핑 대상이 아니다."
+      }
+    ],
+    "execution_notes": [
+      "object에서 mappings 배열로 1:N 연결한다. 같은 FHIR 필드가 서로 다른 object의 조건을 동시에 충족할 수 있다.",
+      "Bundle에서는 entry[].resource를 순회하고 resourceType에 해당하는 리소스에서만 경로를 해석한다. standalone 리소스도 같은 경로를 사용한다.",
+      "이 사전은 분류와 필드 연결 자료이다. mask/reject/remove_field 등의 동작은 정책카드와 커넥터 출력에서 별도로 정한다.",
+      "실제 LLM 메시지·응답에서 FHIR JSON을 찾는 위치, contained 리소스, narrative, extensions, 첨부파일, 외부 참조 탐색은 이 최소 사전에서 제외한다.",
+      "조건 판정 실패는 해당 데이터가 없다는 뜻이 아니라 분류 미확정이다. 커넥터는 미확정 항목을 실행 대상으로 강제 변환하지 않는다.",
+      "법률 조건·라우팅 목적지·승인 상태·로그 설정의 누락은 FHIR 매핑만으로 해결되지 않는다. 어댑터 입력 컨텍스트에서 해결한다."
+    ]
+  },
+  "functions": {
+    "dictionaryId": "agentgateway-functions",
+    "version": "1.0.1",
+    "basis": "Pinned local fork schema c8d17e4fb948cd91e305e22e8304020467b786125a6d8c7535ac40f7e7619af4; upstream 1.5 documentation is supplementary",
+    "supersedesProposal": "0.5.0-proposal",
+    "actionDefinition": "function_id는 기능과 방향을, action_id는 그 기능으로 수행할 세부 동작을 뜻한다. reviewed, approved, 목적, 수탁자 자격 같은 조건은 action_id에 넣지 않는다.",
+    "supportModes": {
+      "native_yaml": "Gateway YAML 필드 또는 선택값에 직접 대응",
+      "external_verdict": "연결된 외부 가드레일 또는 MCP 프로세서의 응답으로 결정",
+      "adapter_compiled_requires_validation": "어댑터가 Gateway의 본문 변환으로 구성하며 대상 형식에 대한 검증이 필요"
+    },
+    "functions": [
+      {
+        "id": "AGW-REGEX-GUARD-REQUEST",
+        "name": "정규식 가드",
+        "traffic": "llm",
+        "direction": "request",
+        "actions": [
+          {
+            "action_id": "mask",
+            "meaning": "일치한 문자열을 치환",
+            "support_mode": "native_yaml",
+            "binding": "guardrails.request[].regex.action=mask"
+          },
+          {
+            "action_id": "reject",
+            "meaning": "일치하면 요청 차단",
+            "support_mode": "native_yaml",
+            "binding": "guardrails.request[].regex.action=reject"
+          },
+          {
+            "action_id": "audit",
+            "meaning": "일치를 기록하고 원문을 그대로 전달",
+            "support_mode": "native_yaml",
+            "binding": "guardrails.request[].regex.action=audit"
+          }
+        ],
+        "limit": "문자열 패턴 검사이며 FHIR 필드 경로 기반 마스킹이 아님",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/llm/prompt-guards/regex/"
+      },
+      {
+        "id": "AGW-REGEX-GUARD-RESPONSE",
+        "name": "정규식 가드",
+        "traffic": "llm",
+        "direction": "response",
+        "actions": [
+          {
+            "action_id": "mask",
+            "meaning": "일치한 응답 문자열을 치환",
+            "support_mode": "native_yaml",
+            "binding": "guardrails.response[].regex.action=mask"
+          },
+          {
+            "action_id": "reject",
+            "meaning": "일치하면 응답 차단",
+            "support_mode": "native_yaml",
+            "binding": "guardrails.response[].regex.action=reject"
+          },
+          {
+            "action_id": "audit",
+            "meaning": "일치를 기록하고 응답 원문을 그대로 전달",
+            "support_mode": "native_yaml",
+            "binding": "guardrails.response[].regex.action=audit"
+          }
+        ],
+        "limit": "스트리밍 응답에서 가드를 실행하려면 streaming: Enabled가 필요하며, 활성화해도 mask는 적용되지 않음",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/llm/prompt-guards/regex/"
+      },
+      {
+        "id": "AGW-EXTERNAL-GUARDRAIL-WEBHOOK-REQUEST",
+        "name": "외부 가드레일·웹훅",
+        "traffic": "llm",
+        "direction": "request",
+        "actions": [
+          {
+            "action_id": "reject",
+            "meaning": "외부 검사 서버의 거부 결과를 집행해 요청 차단",
+            "support_mode": "external_verdict",
+            "binding": "webhook.action=reject + Guardrail webhook RejectAction"
+          },
+          {
+            "action_id": "audit",
+            "meaning": "외부 검사를 기록하고 요청 원문을 전달",
+            "support_mode": "native_yaml",
+            "binding": "guardrails.request[].webhook.action=audit"
+          },
+          {
+            "action_id": "mask",
+            "meaning": "외부 검사 서버의 마스킹 결과를 적용",
+            "support_mode": "external_verdict",
+            "binding": "webhook.action=reject + Guardrail webhook MaskAction"
+          }
+        ],
+        "limit": "webhook.action YAML 값은 reject/audit뿐이며 reject·mask의 실제 결과는 외부 서버 구현에 의존; audit도 webhook 연결 실패 시 failClosed일 수 있음",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/llm/prompt-guards/overview/"
+      },
+      {
+        "id": "AGW-EXTERNAL-GUARDRAIL-WEBHOOK-RESPONSE",
+        "name": "외부 가드레일·웹훅",
+        "traffic": "llm",
+        "direction": "response",
+        "actions": [
+          {
+            "action_id": "reject",
+            "meaning": "외부 검사 서버의 거부 결과를 집행해 응답 차단",
+            "support_mode": "external_verdict",
+            "binding": "webhook.action=reject + Guardrail webhook RejectAction"
+          },
+          {
+            "action_id": "audit",
+            "meaning": "외부 검사를 기록하고 응답 원문을 전달",
+            "support_mode": "native_yaml",
+            "binding": "guardrails.response[].webhook.action=audit"
+          },
+          {
+            "action_id": "mask",
+            "meaning": "외부 검사 서버의 마스킹 결과를 적용",
+            "support_mode": "external_verdict",
+            "binding": "webhook.action=reject + Guardrail webhook MaskAction"
+          }
+        ],
+        "limit": "스트리밍 응답에서 가드를 실행하려면 streaming: Enabled가 필요하며, 활성화해도 mask는 적용되지 않음; 외부 서버 구현이 필요",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/llm/prompt-guards/overview/"
+      },
+      {
+        "id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+        "name": "본문·헤더 변환",
+        "traffic": "http",
+        "direction": "request",
+        "actions": [
+          {
+            "action_id": "add_header",
+            "meaning": "요청 헤더 값 추가",
+            "support_mode": "native_yaml",
+            "binding": "policies.transformations.request.add"
+          },
+          {
+            "action_id": "set_header",
+            "meaning": "요청 헤더 값 설정·교체",
+            "support_mode": "native_yaml",
+            "binding": "policies.transformations.request.set"
+          },
+          {
+            "action_id": "remove_header",
+            "meaning": "요청 헤더 제거",
+            "support_mode": "native_yaml",
+            "binding": "policies.transformations.request.remove"
+          },
+          {
+            "action_id": "rewrite_body",
+            "meaning": "CEL 식으로 요청 본문 전체 재작성",
+            "support_mode": "native_yaml",
+            "binding": "policies.transformations.request.body"
+          },
+          {
+            "action_id": "mask_field",
+            "meaning": "선택된 구조화 필드의 값만 마스킹",
+            "support_mode": "adapter_compiled_requires_validation",
+            "binding": "policies.transformations.request.body"
+          },
+          {
+            "action_id": "remove_field",
+            "meaning": "선택된 구조화 필드만 제거",
+            "support_mode": "adapter_compiled_requires_validation",
+            "binding": "policies.transformations.request.body"
+          }
+        ],
+        "limit": "mask_field/remove_field는 Gateway YAML 고유 action이 아니며 FHIR 데이터의 실제 HTTP/LLM 위치, 중첩 경로·배열·버퍼링을 검증해야 함",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/configuration/traffic-management/transformations/"
+      },
+      {
+        "id": "AGW-BODY-HEADER-TRANSFORM-RESPONSE",
+        "name": "본문·헤더 변환",
+        "traffic": "http",
+        "direction": "response",
+        "actions": [
+          {
+            "action_id": "add_header",
+            "meaning": "응답 헤더 값 추가",
+            "support_mode": "native_yaml",
+            "binding": "policies.transformations.response.add"
+          },
+          {
+            "action_id": "set_header",
+            "meaning": "응답 헤더 값 설정·교체",
+            "support_mode": "native_yaml",
+            "binding": "policies.transformations.response.set"
+          },
+          {
+            "action_id": "remove_header",
+            "meaning": "응답 헤더 제거",
+            "support_mode": "native_yaml",
+            "binding": "policies.transformations.response.remove"
+          },
+          {
+            "action_id": "rewrite_body",
+            "meaning": "CEL 식으로 응답 본문 전체 재작성",
+            "support_mode": "native_yaml",
+            "binding": "policies.transformations.response.body"
+          },
+          {
+            "action_id": "mask_field",
+            "meaning": "선택된 구조화 응답 필드의 값만 마스킹",
+            "support_mode": "adapter_compiled_requires_validation",
+            "binding": "policies.transformations.response.body"
+          },
+          {
+            "action_id": "remove_field",
+            "meaning": "선택된 구조화 응답 필드만 제거",
+            "support_mode": "adapter_compiled_requires_validation",
+            "binding": "policies.transformations.response.body"
+          }
+        ],
+        "limit": "mask_field/remove_field는 Gateway YAML 고유 action이 아니며 FHIR 데이터의 실제 HTTP/LLM 위치, 중첩 경로·배열·응답 스트리밍·버퍼링을 검증해야 함",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/configuration/traffic-management/transformations/"
+      },
+      {
+        "id": "AGW-HEADER-MODIFIER-REQUEST",
+        "name": "헤더 추가·제거",
+        "traffic": "http",
+        "direction": "request",
+        "actions": [
+          {
+            "action_id": "add_header",
+            "meaning": "정적 요청 헤더 추가",
+            "support_mode": "native_yaml",
+            "binding": "requestHeaderModifier.add"
+          },
+          {
+            "action_id": "set_header",
+            "meaning": "정적 요청 헤더 설정·교체",
+            "support_mode": "native_yaml",
+            "binding": "requestHeaderModifier.set"
+          },
+          {
+            "action_id": "remove_header",
+            "meaning": "요청 헤더 제거",
+            "support_mode": "native_yaml",
+            "binding": "requestHeaderModifier.remove"
+          }
+        ],
+        "limit": "HTTP 헤더만 변경; 본문이나 FHIR 필드에 적용 불가",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/configuration/traffic-management/manipulation/"
+      },
+      {
+        "id": "AGW-HEADER-MODIFIER-RESPONSE",
+        "name": "헤더 추가·제거",
+        "traffic": "http",
+        "direction": "response",
+        "actions": [
+          {
+            "action_id": "add_header",
+            "meaning": "정적 응답 헤더 추가",
+            "support_mode": "native_yaml",
+            "binding": "responseHeaderModifier.add"
+          },
+          {
+            "action_id": "set_header",
+            "meaning": "정적 응답 헤더 설정·교체",
+            "support_mode": "native_yaml",
+            "binding": "responseHeaderModifier.set"
+          },
+          {
+            "action_id": "remove_header",
+            "meaning": "응답 헤더 제거",
+            "support_mode": "native_yaml",
+            "binding": "responseHeaderModifier.remove"
+          }
+        ],
+        "limit": "HTTP 헤더만 변경; 본문이나 FHIR 필드에 적용 불가",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/configuration/traffic-management/manipulation/"
+      },
+      {
+        "id": "AGW-AUTH-AUTHZ-REQUEST",
+        "name": "인증·권한 검사",
+        "traffic": "http",
+        "direction": "request",
+        "actions": [
+          {
+            "action_id": "require_api_key",
+            "meaning": "유효한 API 키 요구",
+            "support_mode": "native_yaml",
+            "binding": "apiKey.mode=strict"
+          },
+          {
+            "action_id": "require_jwt",
+            "meaning": "유효한 JWT 요구",
+            "support_mode": "native_yaml",
+            "binding": "jwtAuth.mode=strict"
+          },
+          {
+            "action_id": "authorize_allow",
+            "meaning": "deny·require 평가를 통과한 요청 중 allow 규칙과 일치하는 요청 허용",
+            "support_mode": "native_yaml",
+            "binding": "authorization.rules[].allow"
+          },
+          {
+            "action_id": "authorize_require",
+            "meaning": "필수 조건 불만족 시 요청 거부",
+            "support_mode": "native_yaml",
+            "binding": "authorization.rules[].require"
+          },
+          {
+            "action_id": "authorize_deny",
+            "meaning": "차단 규칙에 맞는 요청 거부",
+            "support_mode": "native_yaml",
+            "binding": "authorization.rules[].deny"
+          }
+        ],
+        "limit": "업무 목적의 법적 검토 자체는 Gateway 인증·인가 기능이 수행하지 않음",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/configuration/security/http-authz/"
+      },
+      {
+        "id": "AGW-MODEL-DESTINATION-SELECT-REQUEST",
+        "name": "모델·목적지 선택",
+        "traffic": "llm",
+        "direction": "request",
+        "actions": [
+          {
+            "action_id": "route_to_backend",
+            "meaning": "설정된 모델·백엔드로 전달",
+            "support_mode": "native_yaml",
+            "binding": "routes[].backends or llm.models[]"
+          },
+          {
+            "action_id": "restrict_allowed_models",
+            "meaning": "키별 사용 가능한 모델 목록 제한",
+            "support_mode": "native_yaml",
+            "binding": "apiKey.keys[].allowedModels"
+          }
+        ],
+        "limit": "reviewed_processor/reviewed_destination은 Gateway 내장 action이 아니라 라우팅 전 검토 조건",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/configuration/routes/"
+      },
+      {
+        "id": "AGW-RATE-BUDGET-LIMIT",
+        "name": "요청량·예산 제한",
+        "traffic": "llm",
+        "direction": "exchange",
+        "actions": [
+          {
+            "action_id": "limit_requests",
+            "meaning": "요청 횟수 한도 적용",
+            "support_mode": "native_yaml",
+            "binding": "localRateLimit/remoteRateLimit type=requests"
+          },
+          {
+            "action_id": "limit_tokens",
+            "meaning": "토큰 사용량 한도 적용",
+            "support_mode": "native_yaml",
+            "binding": "localRateLimit/remoteRateLimit type=tokens"
+          },
+          {
+            "action_id": "block_budget_exceeded",
+            "meaning": "예산 초과 상태의 후속 요청 차단",
+            "support_mode": "native_yaml",
+            "binding": "apiKey.keys[].budgets[].onBudgetExceeded=Block"
+          },
+          {
+            "action_id": "audit_budget_exceeded",
+            "meaning": "예산 초과를 기록하고 후속 요청 허용",
+            "support_mode": "native_yaml",
+            "binding": "apiKey.keys[].budgets[].onBudgetExceeded=Audit"
+          }
+        ],
+        "limit": "토큰 사용량·예산은 응답 뒤 실제 사용량을 반영하므로 초과를 일으킨 요청 자체는 완료될 수 있음",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/llm/cost-controls/budget-limits/"
+      },
+      {
+        "id": "AGW-ACCESS-LOG-TRACING",
+        "name": "접근 로그·추적",
+        "traffic": "gateway",
+        "direction": "exchange",
+        "actions": [
+          {
+            "action_id": "log_access",
+            "meaning": "접근 이벤트 기록(기본 stdout)",
+            "support_mode": "native_yaml",
+            "binding": "default access log; frontendPolicies.accessLog for filter/fields/storage/export"
+          },
+          {
+            "action_id": "trace",
+            "meaning": "설정된 샘플링에 따라 요청 처리 경로 추적",
+            "support_mode": "native_yaml",
+            "binding": "frontendPolicies.tracing"
+          }
+        ],
+        "limit": "접근 로그만으로 보관·정기 점검·위변조 방지 의무가 충족되지는 않음",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/observability/access-logs/view/"
+      },
+      {
+        "id": "AGW-MCP-GUARDRAILS-REQUEST",
+        "name": "MCP 가드레일",
+        "traffic": "mcp",
+        "direction": "request",
+        "actions": [
+          {
+            "action_id": "deny",
+            "meaning": "MCP 도구 호출 차단",
+            "support_mode": "external_verdict",
+            "binding": "ExtMCP CheckRequest -> AuthorizationError"
+          },
+          {
+            "action_id": "mutate",
+            "meaning": "MCP 도구 호출 인자 변경",
+            "support_mode": "external_verdict",
+            "binding": "ExtMCP CheckRequest -> mutated params"
+          }
+        ],
+        "limit": "MCP YAML methods는 검사 단계 지정이며 action 값 자체는 외부 프로세서가 반환",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/mcp/guardrails/about/"
+      },
+      {
+        "id": "AGW-MCP-GUARDRAILS-RESPONSE",
+        "name": "MCP 가드레일",
+        "traffic": "mcp",
+        "direction": "response",
+        "actions": [
+          {
+            "action_id": "deny",
+            "meaning": "MCP 도구 결과 반환 차단",
+            "support_mode": "external_verdict",
+            "binding": "ExtMCP CheckResponse -> AuthorizationError"
+          },
+          {
+            "action_id": "mutate",
+            "meaning": "MCP 도구 결과 변경",
+            "support_mode": "external_verdict",
+            "binding": "ExtMCP CheckResponse -> mutated result"
+          }
+        ],
+        "limit": "MCP YAML methods는 검사 단계 지정이며 결과는 외부 프로세서가 반환; 응답 차단은 이미 수행된 도구 동작을 취소하지 않음",
+        "documentationUrl": "https://agentgateway.dev/docs/standalone/latest/documentation/mcp/guardrails/about/"
+      }
+    ],
+    "status": "contract_frozen"
+  }
+}

@@ -78,6 +78,16 @@ export function listConfigResources() {
 	return requestJson<ConfigResourcesResponse>('/api/config/resources');
 }
 
+export function applyPolicyResources(
+	expectedConfig: unknown,
+	resources: { kind: 'traffic.route' | 'llm.policy'; id: string; value: unknown }[]
+) {
+	return requestJson<ConfigResourcesResponse>('/api/config/resources', {
+		method: 'PUT',
+		body: JSON.stringify({ expectedConfig, resources })
+	});
+}
+
 export function putConfigResources<K extends ConfigResourceKind>(
 	kind: K,
 	resources: ConfigResourceValue<K>[]

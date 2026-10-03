@@ -25,6 +25,7 @@ pub mod ext_proc;
 pub(crate) mod oauth;
 pub mod oidc;
 pub mod outlierdetection;
+pub mod policy_report;
 pub mod remoteratelimit;
 pub mod sessionaffinity;
 pub mod sessionpersistence;

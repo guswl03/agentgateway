@@ -530,6 +530,7 @@ fn strip_alt_query_removes_only_alt() {
 fn streaming_amend_on_drop_updates_local_rate_limit() {
 	let rate_limit =
 		crate::http::localratelimit::RateLimit::try_from(crate::http::localratelimit::RateLimitSpec {
+			policy_sources: Vec::new(),
 			max_tokens: 10,
 			tokens_per_fill: 10,
 			fill_interval: std::time::Duration::from_secs(60),
@@ -570,6 +571,7 @@ fn streaming_amend_on_drop_updates_local_rate_limit() {
 fn streaming_amend_on_drop_uses_cache_inclusive_input_tokens() {
 	let rate_limit =
 		crate::http::localratelimit::RateLimit::try_from(crate::http::localratelimit::RateLimitSpec {
+			policy_sources: Vec::new(),
 			max_tokens: 10,
 			tokens_per_fill: 10,
 			fill_interval: std::time::Duration::from_secs(60),

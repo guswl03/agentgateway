@@ -5,6 +5,7 @@ import { getBudgetStatus } from '@/api/budgetsApi';
 import { getConfig, getEffectiveConfig, writeConfig } from '@/api/configApi';
 import { getConfigDump } from '@/api/configDumpApi';
 import {
+	applyPolicyResources,
 	type ConfigResourceKind,
 	type ConfigResourceValue,
 	deleteConfigResource,
@@ -23,6 +24,9 @@ import {
 	startupMcpConfig
 } from '@/config';
 import { validateGatewayConfig } from '@/configValidation';
+import type { ImportProfile, JsonObject } from '@/policyAdapter';
+import { policyResourceChanges } from '@/policyPersistence';
+import { assertPolicyReadiness, type ReviewProfile } from '@/policyReadiness';
 import type { GatewayConfig, LlmApiKeyPolicy, LlmConfig } from '@/types';
 
 let hybridFileWriteOverride = false;
@@ -222,6 +226,45 @@ function invalidateConfigViews(queryClient: ReturnType<typeof useQueryClient>) {
 	void queryClient.invalidateQueries({ queryKey: ['runtime'] });
 	void queryClient.invalidateQueries({ queryKey: ['config_dump'] });
 	void queryClient.invalidateQueries({ queryKey: ['config_dump_mode'] });
+}
+
+export function useApplyPolicyConfig(requireReview = false) {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async ({
+			before,
+			after,
+			reviewContext
+		}: {
+			before: GatewayConfig;
+			after: GatewayConfig;
+			reviewContext?: { plan: JsonObject; profile: ImportProfile; reviews: ReviewProfile };
+		}) => {
+			if (requireReview && !reviewContext)
+				throw new Error('정책 적용 판단과 검증 기록이 필요합니다.');
+			if (reviewContext)
+				assertPolicyReadiness(
+					reviewContext.plan,
+					before,
+					reviewContext.profile,
+					reviewContext.reviews,
+					after
+				);
+			const runtime = await requireWritableRuntime(queryClient);
+			await validateGatewayConfig(after);
+			if (runtime.ui.configStoreMode === 'hybrid') {
+				const [file, stored] = await Promise.all([getConfig(), listConfigResources()]);
+				const changes = policyResourceChanges(before, after, stored.resources, file);
+				await applyPolicyResources(before, changes);
+			} else {
+				const current = await getConfig();
+				if (JSON.stringify(current) !== JSON.stringify(before))
+					throw new Error('설정이 변경되었습니다. 새로고침 후 다시 확인해 주세요.');
+				await writeConfig(after);
+			}
+		},
+		onSuccess: () => invalidateConfigViews(queryClient)
+	});
 }
 
 export function useUpdateConfig() {

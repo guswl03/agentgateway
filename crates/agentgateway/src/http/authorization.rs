@@ -37,12 +37,17 @@ impl crate::store::RequestPolicyTrait for HTTPAuthorizationSet {
 	async fn apply(
 		&self,
 		_client: &crate::proxy::httpproxy::PolicyClient,
-		_log: &mut crate::telemetry::log::RequestLog,
+		log: &mut crate::telemetry::log::RequestLog,
 		req: &mut http::Request,
 	) -> Result<http::PolicyResponse, crate::proxy::ProxyResponse> {
-		self
-			.apply(req)
-			.map_err(|_| crate::proxy::ProxyResponse::from(ProxyError::AuthorizationFailed))?;
+		if self.apply(req).is_err() {
+			let sources = self.0.denial_sources(&cel::Executor::new_request(req));
+			log
+				.guardrails
+				.policy_decisions
+				.record("reject", "request", &sources);
+			return Err(ProxyError::AuthorizationFailed.into());
+		}
 		Ok(http::PolicyResponse::default())
 	}
 
@@ -55,12 +60,19 @@ impl crate::store::BackendPolicyTrait for HTTPAuthorizationSet {
 	async fn apply(
 		&self,
 		_client: &crate::proxy::httpproxy::PolicyClient,
-		_log: &mut Option<&mut crate::telemetry::log::RequestLog>,
+		log: &mut Option<&mut crate::telemetry::log::RequestLog>,
 		req: &mut http::Request,
 	) -> Result<http::PolicyResponse, crate::proxy::ProxyResponse> {
-		self
-			.apply(req)
-			.map_err(|_| crate::proxy::ProxyResponse::from(ProxyError::AuthorizationFailed))?;
+		if self.apply(req).is_err() {
+			if let Some(log) = log {
+				let sources = self.0.denial_sources(&cel::Executor::new_request(req));
+				log
+					.guardrails
+					.policy_decisions
+					.record("reject", "request", &sources);
+			}
+			return Err(ProxyError::AuthorizationFailed.into());
+		}
 		Ok(http::PolicyResponse::default())
 	}
 
@@ -109,6 +121,9 @@ pub struct PolicySet {
 	allow: Vec<Arc<cel::Expression>>,
 	deny: Vec<Arc<cel::Expression>>,
 	require: Vec<Arc<cel::Expression>>,
+	// Expression text may repeat in separate rules. Arc identity keeps each rule's origins
+	// attached to its own execution slot and remains stable when rule sets are cloned.
+	sources: std::collections::HashMap<usize, Vec<crate::http::policy_report::PolicySource>>,
 }
 
 #[derive(Clone, Debug)]
@@ -122,6 +137,14 @@ pub enum Policy {
 #[serde(untagged)]
 enum RuleSerde {
 	Object {
+		/// Origins for this exact rule, rather than every rule in the route.
+		#[serde(
+			default,
+			rename = "policySources",
+			deserialize_with = "crate::http::policy_report::de_sources",
+			skip_serializing_if = "Vec::is_empty"
+		)]
+		policy_sources: Vec<crate::http::policy_report::PolicySource>,
 		#[serde(flatten)]
 		rule: RuleTypeSerde,
 	},
@@ -150,11 +173,36 @@ impl PolicySet {
 			allow,
 			deny,
 			require,
+			sources: Default::default(),
 		}
 	}
 }
 
 pub fn se_policies<S: Serializer>(t: &PolicySet, serializer: S) -> Result<S::Ok, S::Error> {
+	if !t.sources.is_empty() {
+		let mut rules = Vec::new();
+		for (mode, expressions) in [
+			("allow", &t.allow),
+			("deny", &t.deny),
+			("require", &t.require),
+		] {
+			for expression in expressions {
+				let mut rule = serde_json::Map::new();
+				rule.insert(
+					mode.into(),
+					serde_json::Value::String(expression.original_expression.to_string()),
+				);
+				if let Some(sources) = t.sources.get(&(Arc::as_ptr(expression) as usize)) {
+					rule.insert(
+						"policySources".into(),
+						serde_json::to_value(sources).map_err(serde::ser::Error::custom)?,
+					);
+				}
+				rules.push(serde_json::Value::Object(rule));
+			}
+		}
+		return rules.serialize(serializer);
+	}
 	let len = usize::from(!t.allow.is_empty())
 		+ usize::from(!t.deny.is_empty())
 		+ usize::from(!t.require.is_empty());
@@ -176,36 +224,39 @@ where
 	D: Deserializer<'de>,
 {
 	let raw = Vec::<RuleSerde>::deserialize(deserializer)?;
-	let mut res = PolicySet {
-		allow: vec![],
-		deny: vec![],
-		require: vec![],
-	};
+	let mut res = PolicySet::default();
 	for r in raw {
-		match r {
+		let (mode, expression, sources) = match r {
+			RuleSerde::PlainString(expression) => ("allow", expression, Vec::new()),
 			RuleSerde::Object {
-				rule: RuleTypeSerde::Allow(allow),
-			}
-			| RuleSerde::PlainString(allow) => res.allow.push(
-				cel::Expression::new_strict(&allow)
-					.map(Arc::new)
-					.map_err(|e| serde::de::Error::custom(e.to_string()))?,
-			),
-			RuleSerde::Object {
-				rule: RuleTypeSerde::Deny(deny),
-			} => res.deny.push(
-				cel::Expression::new_strict(deny)
-					.map(Arc::new)
-					.map_err(|e| serde::de::Error::custom(e.to_string()))?,
-			),
-			RuleSerde::Object {
-				rule: RuleTypeSerde::Require(require),
-			} => res.require.push(
-				cel::Expression::new_strict(require)
-					.map(Arc::new)
-					.map_err(|e| serde::de::Error::custom(e.to_string()))?,
-			),
+				rule,
+				policy_sources,
+			} => match rule {
+				RuleTypeSerde::Allow(expression) => ("allow", expression, policy_sources),
+				RuleTypeSerde::Deny(expression) => ("deny", expression, policy_sources),
+				RuleTypeSerde::Require(expression) => ("require", expression, policy_sources),
+			},
 		};
+		let compiled = Arc::new(
+			cel::Expression::new_strict(&expression)
+				.map_err(|e| serde::de::Error::custom(e.to_string()))?,
+		);
+		if !sources.is_empty() {
+			let stored = res
+				.sources
+				.entry(Arc::as_ptr(&compiled) as usize)
+				.or_default();
+			for source in sources {
+				if !stored.contains(&source) {
+					stored.push(source);
+				}
+			}
+		}
+		match mode {
+			"allow" => res.allow.push(compiled),
+			"deny" => res.deny.push(compiled),
+			_ => res.require.push(compiled),
+		}
 	}
 	Ok(res)
 }
@@ -233,6 +284,53 @@ impl RuleSets {
 }
 
 impl RuleSets {
+	fn denial_sources(&self, exec: &Executor) -> Vec<crate::http::policy_report::PolicySource> {
+		for rule_set in &self.0 {
+			for rule in &rule_set.rules.deny {
+				if exec.eval_bool(rule.as_ref()) {
+					return rule_set
+						.rules
+						.sources
+						.get(&(Arc::as_ptr(rule) as usize))
+						.cloned()
+						.unwrap_or_default();
+				}
+			}
+		}
+		for rule_set in &self.0 {
+			for rule in &rule_set.rules.require {
+				if !exec.eval_bool(rule.as_ref()) {
+					return rule_set
+						.rules
+						.sources
+						.get(&(Arc::as_ptr(rule) as usize))
+						.cloned()
+						.unwrap_or_default();
+				}
+			}
+		}
+		if self.0.iter().any(|r| r.allows(exec)) {
+			return Vec::new();
+		}
+		let mut sources = Vec::new();
+		for rule_set in &self.0 {
+			for rule in &rule_set.rules.allow {
+				for source in rule_set
+					.rules
+					.sources
+					.get(&(Arc::as_ptr(rule) as usize))
+					.into_iter()
+					.flatten()
+				{
+					if !sources.contains(source) {
+						sources.push(source.clone());
+					}
+				}
+			}
+		}
+		sources
+	}
+
 	pub fn register(&self, ctx: &mut ContextBuilder) {
 		for expr in self.expressions() {
 			ctx.register_expression(expr);

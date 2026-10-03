@@ -1,0 +1,425 @@
+{
+  "policy_packs": [
+    {
+      "pack_id": "KR_PIPA_GATEWAY_ONLY_PACK",
+      "version": "2.0.0-gateway-only-review",
+      "priority": 100,
+      "cards": [
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_MINIMUM_FIELDS_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_FIXED_PROCESSOR_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_LEAST_PRIVILEGE_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_PSEUDONYM_EXTRA_REMOVE_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_OVERSEAS_STOP_ORDER_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_GATEWAY_ACCESS_LOG_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_PUBLIC_RESPONSE_EXPOSURE_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA_DECREE",
+          "policy_id": "KR_PIPA_DECREE_TRANSFER_FLOOD_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_INCIDENT_CONTAINMENT_001_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_LLM_REQUEST_PATTERN_MASK_GW"
+        },
+        {
+          "law_id": "KR_PIPA",
+          "policy_id": "KR_PIPA_LLM_RESPONSE_PATTERN_MASK_GW"
+        }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_MINIMUM_FIELDS_001_GW",
+      "policy_text": "지정된 구조화 HTTP 요청 경로에서 관리자가 전달 제외 대상으로 설정한 필드만 삭제하여 백엔드로 보내는 개인정보를 줄인다.",
+      "function": [
+        {
+          "function_id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+          "action": "remove_field",
+          "object": "FIELD_SET"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제16조제1항"
+        },
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제3조제1항"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_FIXED_PROCESSOR_001_GW",
+      "policy_text": "지정된 HTTP 요청 경로는 관리자가 설정한 단일 기존 백엔드로만 전달하고 요청 본문의 임의 목적지로 라우팅하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-MODEL-DESTINATION-SELECT-REQUEST",
+          "action": "route_to_backend",
+          "object": "PROCESSOR"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제26조제5항"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "개인정보 보호법 시행령",
+          "revision_no": "대통령령 제36671호",
+          "promulgation_date": "2026-09-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+          "provision": "제28조제1항"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_LEAST_PRIVILEGE_001_GW",
+      "policy_text": "개인정보 처리용 지정 API는 JWT 서명·발급자·audience·만료를 검증하고 토큰 역할·scope와 고정 경로·메서드 접근 규칙에 맞는 요청만 전달한다.",
+      "function": [
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "require_jwt",
+          "object": "USER"
+        },
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "authorize_require",
+          "object": "PERSONAL_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제28조제1항"
+        },
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제59조제2호"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "개인정보 보호법 시행령",
+          "revision_no": "대통령령 제36671호",
+          "promulgation_date": "2026-09-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+          "provision": "제30조제1항제2호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_PSEUDONYM_EXTRA_REMOVE_001_GW",
+      "policy_text": "관리자가 가명정보 제공용으로 지정한 구조화 요청 경로에서 재식별용 추가정보 필드로 설정한 항목을 삭제하여 전달한다.",
+      "function": [
+        {
+          "function_id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+          "action": "remove_field",
+          "object": "ADDITIONAL_INFORMATION"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제28조의2제2항"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_OVERSEAS_STOP_ORDER_001_GW",
+      "policy_text": "관리자가 중지 대상으로 지정한 국외 전달용 HTTP 경로에 고정 거절 규칙을 적용하여 해당 백엔드로의 전달을 차단한다.",
+      "function": [
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "authorize_require",
+          "object": "OVERSEAS_RECIPIENT"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제28조의9제1항"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "개인정보 보호법 시행령",
+          "revision_no": "대통령령 제36671호",
+          "promulgation_date": "2026-09-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+          "provision": "제29조의11제3항"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_GATEWAY_ACCESS_LOG_001_GW",
+      "policy_text": "지정된 개인정보 처리 API의 요청 시각·경로·처리 결과 등 Gateway 접근 이벤트를 기존 접속 로그 설정으로 기록한다.",
+      "function": [
+        {
+          "function_id": "AGW-ACCESS-LOG-TRACING",
+          "action": "log_access",
+          "object": "ACCESS_LOG"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제29조"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "개인정보 보호법 시행령",
+          "revision_no": "대통령령 제36671호",
+          "promulgation_date": "2026-09-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+          "provision": "제30조제1항제5호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_PUBLIC_RESPONSE_EXPOSURE_001_GW",
+      "policy_text": "공개용 LLM 응답 텍스트에서 관리자가 설정한 주민등록번호·계좌번호·신용카드번호 등의 노출 차단 정규식에 일치하면 응답 전달을 거절한다.",
+      "function": [
+        {
+          "function_id": "AGW-REGEX-GUARD-RESPONSE",
+          "action": "reject",
+          "object": "PERSONAL_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제34조의2제1항"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA_DECREE",
+      "policy_id": "KR_PIPA_DECREE_TRANSFER_FLOOD_001_GW",
+      "policy_text": "지정된 개인정보 전송 API에서 관리자가 정한 요청 횟수·시간 구간·주체별 제한값을 적용하여 반복 접근으로 인한 전산설비 과부하를 줄인다.",
+      "function": [
+        {
+          "function_id": "AGW-RATE-BUDGET-LIMIT",
+          "action": "limit_requests",
+          "object": null
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제35조의3제3항제2호"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "개인정보 보호법 시행령",
+          "revision_no": "대통령령 제36671호",
+          "promulgation_date": "2026-09-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+          "provision": "제42조의13"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "개인정보 보호법 시행령",
+          "revision_no": "대통령령 제36671호",
+          "promulgation_date": "2026-09-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+          "provision": "별표 1의3제2호파목"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "개인정보 보호법 시행령",
+          "revision_no": "대통령령 제36671호",
+          "promulgation_date": "2026-09-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+          "provision": "별표 1의3제3호가목"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_INCIDENT_CONTAINMENT_001_GW",
+      "policy_text": "관리자가 추가 전달을 중지하기로 지정한 개인정보 처리 HTTP 경로에 고정 거절 규칙을 적용하여 백엔드 전달을 차단한다.",
+      "function": [
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "authorize_require",
+          "object": "PERSONAL_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제34조제3항"
+        },
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "개인정보 보호법 시행령",
+          "revision_no": "대통령령 제36671호",
+          "promulgation_date": "2026-09-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289537",
+          "provision": "제39조제1항제1호"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_LLM_REQUEST_PATTERN_MASK_GW",
+      "policy_text": "지정된 LLM 요청의 텍스트에서 관리자가 설정한 개인정보 문자열 패턴에 일치하는 부분을 치환하여 외부 모델에 보내는 원문 노출을 줄인다.",
+      "function": [
+        {
+          "function_id": "AGW-REGEX-GUARD-REQUEST",
+          "action": "mask",
+          "object": "PERSONAL_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제29조"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_PIPA",
+      "policy_id": "KR_PIPA_LLM_RESPONSE_PATTERN_MASK_GW",
+      "policy_text": "공개용 비스트리밍 LLM 응답 텍스트에서 관리자가 설정한 개인정보 문자열 패턴에 일치하는 부분을 치환하여 전달한다.",
+      "function": [
+        {
+          "function_id": "AGW-REGEX-GUARD-RESPONSE",
+          "action": "mask",
+          "object": "PERSONAL_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제29조"
+        },
+        {
+          "level": "LAW",
+          "law_name": "개인정보 보호법",
+          "revision_no": "법률 제21445호",
+          "promulgation_date": "2026-03-10",
+          "effective_date": "2026-09-11",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283839",
+          "provision": "제34조의2제1항"
+        }
+      ],
+      "except": []
+    }
+  ]
+}

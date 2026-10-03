@@ -378,7 +378,18 @@ impl<T: Debug> Debug for AsyncLog<T> {
 }
 
 /// Per-request accumulator of prompt-guard guardrail interventions.
-pub type GuardrailLog = AsyncLog<Vec<cel::GuardrailInfo>>;
+#[derive(Default, Clone, Debug)]
+pub struct GuardrailLog {
+	entries: AsyncLog<Vec<cel::GuardrailInfo>>,
+	pub policy_decisions: crate::http::policy_report::PolicyDecisionLog,
+}
+
+impl std::ops::Deref for GuardrailLog {
+	type Target = AsyncLog<Vec<cel::GuardrailInfo>>;
+	fn deref(&self) -> &Self::Target {
+		&self.entries
+	}
+}
 
 #[derive(serde::Serialize, Debug, Default, Clone)]
 pub struct MetricsConfig {

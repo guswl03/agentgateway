@@ -3143,6 +3143,7 @@ impl LocalMcpAuthentication {
 		};
 
 		Ok(http::jwt::LocalJwtConfig::Single {
+			policy_sources: Vec::new(),
 			mode: self.mode.into(),
 			location: self.authorization_location.clone(),
 			preserve_token: false,

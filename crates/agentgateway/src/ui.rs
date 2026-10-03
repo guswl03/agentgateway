@@ -25,6 +25,8 @@ use crate::config_store::{
 use crate::llm::catalog::ModelCatalog;
 use crate::{Config, ConfigSource, ConfigStoreMode, yamlviajson};
 
+mod policy_connector;
+
 const BASE_COSTS_FILE: &str = "base-costs.json";
 const CONFIG_SCHEMA_HEADER: &str =
 	"# yaml-language-server: $schema=https://agentgateway.dev/schema/config\n";
@@ -85,9 +87,14 @@ pub fn router(
 		// OIDC intercepts this path to start login; without OIDC, return to the UI.
 		.route("/api/auth/login", get(|| async { Redirect::to("/ui") }))
 		.route("/api/runtime", get(get_runtime))
+		.route("/api/policy/packs", get(policy_connector::list_packs))
+		.route("/api/policy/compile", post(policy_connector::compile))
 		.route("/api/config", get(get_config).post(write_config))
 		.route("/api/config/effective", get(get_effective_config))
-		.route("/api/config/resources", get(list_config_resources))
+		.route(
+			"/api/config/resources",
+			get(list_config_resources).put(apply_policy_resources),
+		)
 		.route(
 			"/api/config/resources/{kind}",
 			get(list_config_resources_by_kind).put(upsert_config_resources_by_kind),
@@ -441,6 +448,112 @@ async fn list_stored_config_resources(
 async fn read_file_config(app: &App) -> Result<Value, ErrorResponse> {
 	let config = app.cfg()?.read_to_string().await?;
 	yamlviajson::from_str(&config).map_err(ErrorResponse::Anyhow)
+}
+
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct PolicyResourcesRequest {
+	expected_config: Value,
+	resources: Vec<PolicyResourceWrite>,
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PolicyResourceWrite {
+	kind: ConfigResourceKind,
+	id: String,
+	value: Value,
+}
+
+// Persist one validated policy candidate in a single DB transaction, never into the file.
+async fn apply_policy_resources(
+	State(app): State<App>,
+	Json(request): Json<PolicyResourcesRequest>,
+) -> Result<Json<UiConfigResourcesResponse>, ErrorResponse> {
+	app.ensure_writable()?;
+	let store = app.config_resource_store()?;
+	let resources = store.list(None).await.map_err(resource_api_error)?;
+	let base = app.cfg()?.read_to_string().await?;
+	let current =
+		crate::config_store::materialize_config(&base, &resources).map_err(resource_api_error)?;
+	let current: Value = yamlviajson::from_str(&current)?;
+	if current != request.expected_config {
+		return Err(ErrorResponse::Status(
+			StatusCode::CONFLICT,
+			"Configuration changed; refresh before applying policies".into(),
+		));
+	}
+	let mut prepared = Vec::new();
+	let mut keys = std::collections::HashSet::new();
+	for resource in request.resources {
+		if !keys.insert((resource.kind.as_str().to_string(), resource.id.clone())) {
+			return Err(ErrorResponse::Status(
+				StatusCode::BAD_REQUEST,
+				"Duplicate policy resource".into(),
+			));
+		}
+		let next = match resource.kind {
+			ConfigResourceKind::TrafficRoute => {
+				let Some(existing) = resources
+					.iter()
+					.find(|r| r.kind == resource.kind && r.id == resource.id)
+				else {
+					return Err(ErrorResponse::Status(
+						StatusCode::CONFLICT,
+						"Policy application requires a DB-owned route".into(),
+					));
+				};
+				let mut expected = existing.value.clone();
+				let expected = expected
+					.as_object_mut()
+					.ok_or_else(|| ErrorResponse::String("Invalid stored route".into()))?;
+				match resource.value.get("policies") {
+					Some(policies) => {
+						expected.insert("policies".into(), policies.clone());
+					},
+					None => {
+						expected.remove("policies");
+					},
+				}
+				if Value::Object(expected.clone()) != resource.value {
+					return Err(ErrorResponse::Status(
+						StatusCode::BAD_REQUEST,
+						"Only route policies may change".into(),
+					));
+				}
+				let next = crate::config_store::prepare_resource(resource.kind, resource.value)
+					.map_err(resource_api_error)?;
+				if next.id != resource.id {
+					return Err(ErrorResponse::Status(
+						StatusCode::BAD_REQUEST,
+						"Route ID must remain unchanged".into(),
+					));
+				}
+				next
+			},
+			ConfigResourceKind::LlmPolicy => {
+				crate::config_store::prepare_policy_upsert(resource.kind, resource.id, resource.value)
+					.map_err(resource_api_error)?
+			},
+			_ => {
+				return Err(ErrorResponse::Status(
+					StatusCode::BAD_REQUEST,
+					"Only traffic.route and llm.policy are supported".into(),
+				));
+			},
+		};
+		prepared.push(next);
+	}
+	let candidate = crate::config_store::apply_prepared_upsert(resources.clone(), &prepared)
+		.map_err(resource_api_error)?;
+	validate_materialized_config(&app, &candidate).await?;
+	Ok(Json(
+		store
+			.upsert_prepared_checked(prepared, Some(resources))
+			.await
+			.map_err(resource_api_error)?
+			.into(),
+	))
 }
 
 async fn upsert_config_resources_by_kind(

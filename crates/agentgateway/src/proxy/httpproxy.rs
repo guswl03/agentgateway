@@ -555,6 +555,7 @@ async fn apply_llm_request_policies(
 	req: &mut Request,
 	llm_req: &LLMRequest,
 	response_headers: &mut HeaderMap,
+	policy_decisions: Option<&crate::http::policy_report::PolicyDecisionLog>,
 ) -> Result<store::LLMResponsePolicies, ProxyResponse> {
 	// Token limits are settled here, where the parsed request gives the token count and, for a
 	// keyed rule, the `llm` context its key may read.
@@ -585,7 +586,14 @@ async fn apply_llm_request_policies(
 			exec.llm = cel::ExtensionOrDirect::Direct(Some(llm_ctx));
 		}
 		let admitted = limits.iter().try_for_each(|lrl| {
-			if let Some((status, charged)) = lrl.charge_tokens(llm_req.input_tokens, &exec)? {
+			if let Some((status, charged)) =
+				lrl
+					.charge_tokens(llm_req.input_tokens, &exec)
+					.inspect_err(|_| {
+						if let Some(decisions) = policy_decisions {
+							decisions.record("reject", "request", &lrl.spec.policy_sources);
+						}
+					})? {
 				local_status =
 					http::localratelimit::RateLimitStatus::most_constrained(local_status, Some(status));
 				local_rate_limit.push(charged);
@@ -782,6 +790,15 @@ impl HTTPProxy {
 		};
 		// LLM buffering deliberately leaves decoded bodies plain so response policies can safely read
 		// and replace them. Restore the upstream-selected encoding only after every such policy ran.
+		if let Some(log) = log.as_mut() {
+			let rejected = log.guardrails.policy_decisions.rejected();
+			crate::http::policy_report::decorate_response_with_llm(
+				&mut resp,
+				&log.guardrails.policy_decisions,
+				rejected,
+				log.llm_request.is_some(),
+			);
+		}
 		llm::encode_deferred_response(&mut resp);
 		if let Some(log) = log.as_mut() {
 			dtrace::snapshot!(Response, "final response", log, &resp);
@@ -2893,6 +2910,7 @@ async fn make_backend_call(
 								&mut req,
 								&llm_request,
 								&mut response_policies.rate_limit_headers,
+								log.as_ref().map(|l| &l.guardrails.policy_decisions),
 							)
 							.assert_size::<{ 3 * 1024 }>(),
 						)
@@ -3832,6 +3850,7 @@ mod tests {
 
 	fn response_regex_guard() -> ResponseGuard {
 		ResponseGuard {
+			policy_sources: Vec::new(),
 			rejection: RequestRejection::default(),
 			kind: ResponseGuardKind::Regex(RegexRules {
 				action: Default::default(),
@@ -3882,6 +3901,7 @@ mod tests {
 			&mut req,
 			&llm_request(),
 			&mut response_headers,
+			None,
 		)
 		.await
 		.expect("LLM request policies should apply")
@@ -3903,6 +3923,66 @@ mod tests {
 
 		assert_eq!(policies.prompt_guard.len(), 1);
 		assert!(policies.streaming_prompt_guard_enabled);
+	}
+
+	#[tokio::test]
+	async fn apply_llm_request_policies_attributes_only_the_rejecting_token_bucket() {
+		use crate::http::localratelimit::{RateLimit, RateLimitSpec, RateLimitType};
+		use crate::http::policy_report::{PolicyDecisionLog, PolicySource};
+		let source: PolicySource = serde_json::from_value(serde_json::json!({
+			"pack_id": "test", "pack_version": "1", "law_id": "LAW",
+			"policy_id": "admitting-limit", "function_id": "limit", "function_index": 0,
+			"action": "reject", "legal_sources": [{"law_name": "시험법", "provision": "제1조"}]
+		}))
+		.unwrap();
+		let limit = |capacity, policy_id: &str| {
+			let mut source = source.clone();
+			source.policy_id = policy_id.into();
+			RateLimit::try_from(RateLimitSpec {
+				policy_sources: vec![source],
+				max_tokens: capacity,
+				tokens_per_fill: 1,
+				fill_interval: std::time::Duration::from_secs(3600),
+				limit_type: RateLimitType::Tokens,
+				key: None,
+			})
+			.unwrap()
+		};
+		let admitted = limit(10, "admitting-limit");
+		let policies = LLMRequestPolicies {
+			local_rate_limit: Some(Arc::new(vec![
+				admitted.clone(),
+				limit(2, "rejecting-limit"),
+			])),
+			..Default::default()
+		};
+		let mut request = llm_request();
+		request.input_tokens = Some(3);
+		let mut req = ::http::Request::builder()
+			.body(http::Body::empty())
+			.unwrap();
+		let mut response_headers = ::http::HeaderMap::new();
+		let decisions = PolicyDecisionLog::default();
+		assert!(
+			apply_llm_request_policies(
+				&policies,
+				crate::test_helpers::policy_client(),
+				&mut req,
+				&request,
+				&mut response_headers,
+				Some(&decisions),
+			)
+			.await
+			.is_err()
+		);
+		assert_eq!(admitted.shared_bucket().available(), 10);
+		let report = decisions.report().unwrap();
+		assert_eq!(report["decisions"].as_array().unwrap().len(), 1);
+		assert_eq!(report["decisions"][0]["action"], "reject");
+		assert_eq!(
+			report["decisions"][0]["sources"][0]["policy_id"],
+			"rejecting-limit"
+		);
 	}
 
 	#[test]

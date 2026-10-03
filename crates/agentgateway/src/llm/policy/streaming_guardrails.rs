@@ -195,6 +195,13 @@ fn guardrail_blocked_sse_bytes(body: Bytes) -> Bytes {
 			"message": message,
 		}
 	});
+	let mut event = event;
+	if let Ok(body) = serde_json::from_slice::<serde_json::Value>(&body) {
+		if let Some(report) = body.get("gateway_policy") {
+			event["gateway_policy"] = report.clone();
+			event["error"]["message"] = body["error"]["message"].clone();
+		}
+	}
 	Bytes::from(format!("data: {event}\n\n"))
 }
 

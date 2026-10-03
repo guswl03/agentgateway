@@ -976,10 +976,36 @@ impl Policy {
 		original: Option<&cel::RequestSnapshot>,
 		guardrail_log: Option<&GuardrailLog>,
 	) -> anyhow::Result<(GuardrailAction, Option<Response>)> {
+		let mut before = Vec::new();
+		if !guard.policy_sources.is_empty() {
+			req.visit_text_mut(&mut |_, text| before.push(text.clone()));
+		}
 		let (outcome, detail) =
 			Self::evaluate_single_request_guard(guard, req, http_headers, client, claims, original)
 				.await?;
 		let (action, rejection) = Self::apply_request_guard_outcome(outcome, req)?;
+		let mut after = Vec::new();
+		if action == GuardrailAction::Mask && !guard.policy_sources.is_empty() {
+			req.visit_text_mut(&mut |_, text| after.push(text.clone()));
+		}
+		if let Some(log) = guardrail_log {
+			match action {
+				GuardrailAction::Mask if before != after && req.body_is_json() => {
+					log
+						.policy_decisions
+						.record("mask", "request", &guard.policy_sources)
+				},
+				GuardrailAction::Reject => {
+					log
+						.policy_decisions
+						.record("reject", "request", &guard.policy_sources)
+				},
+				_ => {},
+			}
+		}
+		let rejection = rejection.map(|response| {
+			crate::http::policy_report::rejection_response(response, &guard.policy_sources, "request")
+		});
 		record_guardrail(
 			guardrail_log,
 			GuardrailPhase::Request,
@@ -1892,6 +1918,10 @@ impl Policy {
 		guardrail_log: Option<&GuardrailLog>,
 		streaming: bool,
 	) -> anyhow::Result<(GuardrailAction, Option<Response>)> {
+		let mut before = Vec::new();
+		if !guard.policy_sources.is_empty() {
+			resp.visit_text_mut(&mut |text| before.push(text.clone()));
+		}
 		let (outcome, detail) =
 			Self::evaluate_single_response_guard(guard, resp, http_headers, client, original).await?;
 
@@ -1903,6 +1933,28 @@ impl Policy {
 		};
 
 		let (action, rejection) = Self::apply_response_guard_outcome(outcome, resp)?;
+		let mut after = Vec::new();
+		if action == GuardrailAction::Mask && !guard.policy_sources.is_empty() {
+			resp.visit_text_mut(&mut |text| after.push(text.clone()));
+		}
+		if let Some(log) = guardrail_log {
+			match action {
+				GuardrailAction::Mask if before != after => {
+					log
+						.policy_decisions
+						.record("mask", "response", &guard.policy_sources)
+				},
+				GuardrailAction::Reject => {
+					log
+						.policy_decisions
+						.record("reject", "response", &guard.policy_sources)
+				},
+				_ => {},
+			}
+		}
+		let rejection = rejection.map(|response| {
+			crate::http::policy_report::rejection_response(response, &guard.policy_sources, "response")
+		});
 		record_guardrail(
 			guardrail_log,
 			GuardrailPhase::Response,
@@ -1950,6 +2002,13 @@ enum RegexResult {
 
 #[apply(schema!)]
 pub struct RequestGuard {
+	/// Policy cards that justify this control. Reported only after an actual intervention.
+	#[serde(
+		default,
+		deserialize_with = "crate::http::policy_report::de_sources",
+		skip_serializing_if = "Vec::is_empty"
+	)]
+	pub policy_sources: Vec<crate::http::policy_report::PolicySource>,
 	/// Response returned when the request is rejected.
 	#[serde(default)]
 	pub rejection: RequestRejection,
@@ -2363,6 +2422,13 @@ impl Default for RequestRejection {
 
 #[apply(schema!)]
 pub struct ResponseGuard {
+	/// Policy cards that justify this control. Reported only after an actual intervention.
+	#[serde(
+		default,
+		deserialize_with = "crate::http::policy_report::de_sources",
+		skip_serializing_if = "Vec::is_empty"
+	)]
+	pub policy_sources: Vec<crate::http::policy_report::PolicySource>,
 	/// Response returned when the LLM response is rejected.
 	#[serde(default)]
 	pub rejection: RequestRejection,

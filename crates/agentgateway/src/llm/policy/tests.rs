@@ -13,6 +13,7 @@ async fn webhook_fail_open_emits_single_metric() {
 	let guard = PromptGuard {
 		streaming: Default::default(),
 		request: vec![RequestGuard {
+			policy_sources: Vec::new(),
 			rejection: Default::default(),
 			scope: default_content_scope(),
 			kind: RequestGuardKind::Webhook(Webhook {
@@ -81,6 +82,7 @@ fn guardrail_metric(
 #[tokio::test]
 async fn audit_mode_records_allow_when_nothing_matches() {
 	let guard = ResponseGuard {
+		policy_sources: Vec::new(),
 		rejection: Default::default(),
 		kind: ResponseGuardKind::Regex(RegexRules {
 			action: Action::Audit,
@@ -116,6 +118,7 @@ async fn audit_mode_records_allow_when_nothing_matches() {
 #[tokio::test]
 async fn audit_mode_records_audit_and_passes_through_on_match() {
 	let guard = ResponseGuard {
+		policy_sources: Vec::new(),
 		rejection: Default::default(),
 		kind: ResponseGuardKind::Regex(RegexRules {
 			action: Action::Audit,
@@ -203,6 +206,7 @@ async fn streaming_guard_records_one_metric_per_stream() {
 	use crate::llm::policy::streaming_guardrails::make_evaluator;
 
 	let guard = ResponseGuard {
+		policy_sources: Vec::new(),
 		rejection: Default::default(),
 		kind: ResponseGuardKind::Regex(RegexRules {
 			action: Action::Audit,
@@ -2447,6 +2451,7 @@ async fn regex_reject_records_guardrail_info() {
 		}))
 		.unwrap();
 	let guard = RequestGuard {
+		policy_sources: Vec::new(),
 		rejection: Default::default(),
 		scope: default_content_scope(),
 		kind: RequestGuardKind::Regex(RegexRules {
