@@ -21,6 +21,7 @@ import { McpServersPage } from '@/pages/McpServers';
 import { ModelsPage } from '@/pages/Models';
 import { PlaygroundPage } from '@/pages/Playground';
 import { McpPoliciesPage, PoliciesPage } from '@/pages/Policies';
+import { PolicyImportPage } from '@/pages/PolicyImport';
 import { ProvidersPage } from '@/pages/Providers';
 import { RawSettingsPage } from '@/pages/RawSettings';
 import { TrafficGatewaysPage } from '@/pages/TrafficGateways';
@@ -181,6 +182,12 @@ const trafficRoutesRoute = createRoute({
 	component: TrafficRoutesPage
 });
 
+const policyImportRoute = createRoute({
+	getParentRoute: () => appRoute,
+	path: '/policy-import',
+	component: PolicyImportPage
+});
+
 const celRoute = createRoute({
 	getParentRoute: () => appRoute,
 	path: '/cel',
@@ -240,6 +247,7 @@ const router = createRouter({
 			trafficListenersRoute,
 			trafficRoutesRoute,
 			celRoute,
+			policyImportRoute,
 			rawSettingsRoute,
 			rawConfigRoute
 		])

@@ -97,11 +97,14 @@ if /out/agentgateway --version | grep -q '"version": "unknown"'; then
 fi
 EOF
 
-FROM cgr.dev/chainguard/glibc-dynamic AS runner
+# The policy compiler needs only the Python standard library at runtime.
+# Match the native builder's Debian generation and keep the non-root runtime.
+FROM docker.io/library/python:3.12.14-slim-trixie AS runner
 
 ARG TARGETARCH
 
 ENV AGENTGATEWAY_ENV=container
+ENV AGENTGATEWAY_POLICY_PYTHON=/usr/local/bin/python3
 
 WORKDIR /
 
@@ -109,5 +112,7 @@ COPY --from=builder /out/agentgateway /app/agentgateway
 
 LABEL org.opencontainers.image.source=https://github.com/agentgateway/agentgateway
 LABEL org.opencontainers.image.description="Agentgateway is an open source project that is built on AI-native protocols to connect, secure, and observe agent-to-agent and agent-to-tool communication across any agent framework and environment."
+
+USER 65532:65532
 
 ENTRYPOINT ["/app/agentgateway"]

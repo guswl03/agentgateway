@@ -70,6 +70,7 @@ pub enum JwkError {
 
 #[derive(Clone)]
 pub struct Jwt {
+	policy_sources: Vec<crate::http::policy_report::PolicySource>,
 	mode: Mode,
 	providers: Vec<Provider>,
 	location: AuthorizationLocation,
@@ -91,6 +92,8 @@ impl serde::Serialize for Jwt {
 		#[derive(serde::Serialize)]
 		#[serde(rename_all = "camelCase")]
 		pub struct Serde<'a> {
+			#[serde(skip_serializing_if = "Vec::is_empty")]
+			policy_sources: &'a Vec<crate::http::policy_report::PolicySource>,
 			mode: Mode,
 			providers: &'a Vec<Provider>,
 			location: &'a AuthorizationLocation,
@@ -98,6 +101,7 @@ impl serde::Serialize for Jwt {
 			preserve_token: bool,
 		}
 		Serde {
+			policy_sources: &self.policy_sources,
 			mode: self.mode,
 			providers: &self.providers,
 			location: &self.location,
@@ -140,6 +144,9 @@ impl Debug for Jwt {
 pub enum LocalJwtConfig {
 	/// Validate JWTs against one or more trusted token issuers.
 	Multi {
+		/// Policy origins reported only when JWT authentication rejects the request.
+		#[cfg_attr(feature = "schema", schemars(default))]
+		policy_sources: Vec<crate::http::policy_report::PolicySource>,
 		/// Controls whether requests must include a JWT and how validation failures are handled.
 		#[cfg_attr(feature = "schema", schemars(default))]
 		mode: Mode,
@@ -154,6 +161,9 @@ pub enum LocalJwtConfig {
 	},
 	/// Validate JWTs against a single trusted token issuer.
 	Single {
+		/// Policy origins reported only when JWT authentication rejects the request.
+		#[cfg_attr(feature = "schema", schemars(default))]
+		policy_sources: Vec<crate::http::policy_report::PolicySource>,
 		/// Controls whether requests must include a JWT and how validation failures are handled.
 		#[cfg_attr(feature = "schema", schemars(default))]
 		mode: Mode,
@@ -177,6 +187,8 @@ pub enum LocalJwtConfig {
 
 #[apply(schema_de!)]
 struct LocalJwtMultiConfig {
+	#[serde(default, deserialize_with = "crate::http::policy_report::de_sources")]
+	policy_sources: Vec<crate::http::policy_report::PolicySource>,
 	#[serde(default)]
 	mode: Mode,
 	#[serde(default)]
@@ -188,6 +200,8 @@ struct LocalJwtMultiConfig {
 
 #[apply(schema_de!)]
 struct LocalJwtSingleConfig {
+	#[serde(default, deserialize_with = "crate::http::policy_report::de_sources")]
+	policy_sources: Vec<crate::http::policy_report::PolicySource>,
 	#[serde(default)]
 	mode: Mode,
 	#[serde(default)]
@@ -213,6 +227,7 @@ impl<'de> Deserialize<'de> for LocalJwtConfig {
 			let config: LocalJwtMultiConfig =
 				serde_json::from_value(value).map_err(serde::de::Error::custom)?;
 			Ok(Self::Multi {
+				policy_sources: config.policy_sources,
 				mode: config.mode,
 				location: config.location,
 				preserve_token: config.preserve_token,
@@ -222,6 +237,7 @@ impl<'de> Deserialize<'de> for LocalJwtConfig {
 			let config: LocalJwtSingleConfig =
 				serde_json::from_value(value).map_err(serde::de::Error::custom)?;
 			Ok(Self::Single {
+				policy_sources: config.policy_sources,
 				mode: config.mode,
 				location: config.location,
 				preserve_token: config.preserve_token,
@@ -321,14 +337,22 @@ impl LocalJwtConfig {
 		self,
 		resources: &crate::resource_manager::ResourceFetcher,
 	) -> Result<Jwt, JwkError> {
-		let (mode, authorization_location, preserve_token, providers_cfg) = match self {
+		let (mode, authorization_location, preserve_token, providers_cfg, policy_sources) = match self {
 			LocalJwtConfig::Multi {
+				policy_sources,
 				mode,
 				location: authorization_location,
 				preserve_token,
 				providers,
-			} => (mode, authorization_location, preserve_token, providers),
+			} => (
+				mode,
+				authorization_location,
+				preserve_token,
+				providers,
+				policy_sources,
+			),
 			LocalJwtConfig::Single {
+				policy_sources,
 				mode,
 				location: authorization_location,
 				preserve_token,
@@ -346,6 +370,7 @@ impl LocalJwtConfig {
 					jwks,
 					jwt_validation_options,
 				}],
+				policy_sources,
 			),
 		};
 
@@ -360,6 +385,7 @@ impl LocalJwtConfig {
 			providers.push(provider);
 		}
 		Ok(Jwt {
+			policy_sources,
 			mode,
 			providers,
 			location: authorization_location,
@@ -488,6 +514,7 @@ impl Jwt {
 		preserve_token: bool,
 	) -> Jwt {
 		Jwt {
+			policy_sources: Vec::new(),
 			mode,
 			providers,
 			location: authorization_location,
@@ -569,6 +596,23 @@ impl Jwt {
 	}
 
 	pub async fn apply(
+		&self,
+		log: Option<&mut RequestLog>,
+		req: &mut Request,
+	) -> Result<(), TokenError> {
+		let decisions = log
+			.as_ref()
+			.map(|log| log.guardrails.policy_decisions.clone());
+		let result = self.apply_inner(log, req).await;
+		if result.is_err()
+			&& let Some(decisions) = decisions
+		{
+			decisions.record("reject", "request", &self.policy_sources);
+		}
+		result
+	}
+
+	async fn apply_inner(
 		&self,
 		log: Option<&mut RequestLog>,
 		req: &mut Request,

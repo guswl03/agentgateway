@@ -13,16 +13,21 @@ export default defineConfig({
 		baseURL: 'http://127.0.0.1:19100',
 		trace: 'retain-on-failure'
 	},
-	webServer: {
-		command: 'pnpm preview:e2e',
-		url: 'http://127.0.0.1:19100',
-		reuseExistingServer: !process.env.CI,
-		timeout: 120_000
-	},
+	webServer: process.env.PLAYWRIGHT_EXTERNAL_SERVER
+		? undefined
+		: {
+				command: 'pnpm preview:e2e',
+				url: 'http://127.0.0.1:19100',
+				reuseExistingServer: !process.env.CI,
+				timeout: 120_000
+			},
 	projects: [
 		{
 			name: 'chromium',
-			use: { ...devices['Desktop Chrome'] }
+			use: {
+				...devices['Desktop Chrome'],
+				...(process.env.PLAYWRIGHT_CHANNEL ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {})
+			}
 		}
 	]
 });

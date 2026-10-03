@@ -22,6 +22,63 @@ fn create_policy_set(policies: Vec<&str>) -> PolicySet {
 	policy_set
 }
 
+#[test]
+fn policy_attribution_reports_only_the_first_failing_requirement_and_roundtrips() {
+	let origin = |id: &str| json!({"pack_id":"fixture", "pack_version":"1", "law_id":"LAW", "policy_id":id, "function_id":"require", "function_index":0, "action":"allow", "legal_sources":[{"law_name":"Fixture law", "provision":id}]});
+	let rule_set: RuleSet=serde_json::from_value(json!({"rules":[{"require":"true","policySources":[origin("passed")]},{"require":"false","policySources":[origin("failed")]},{"require":"false","policySources":[origin("not reached")]}]})).unwrap();
+	let roundtrip: RuleSet =
+		serde_json::from_value(serde_json::to_value(&rule_set).unwrap()).unwrap();
+	let rules = RuleSets::from(vec![roundtrip]);
+	let req = ::http::Request::builder()
+		.body(crate::http::Body::empty())
+		.unwrap();
+	let exec = Executor::new_request(&req);
+	assert!(!rules.validate(&exec));
+	let sources = rules.denial_sources(&exec);
+	assert_eq!(sources.len(), 1);
+	assert_eq!(sources[0].policy_id, "failed");
+}
+
+#[test]
+fn policy_attribution_does_not_credit_later_rules_after_unattributed_deny() {
+	let origin = json!({"pack_id":"fixture", "pack_version":"1", "law_id":"LAW", "policy_id":"later", "function_id":"require", "function_index":0, "action":"allow", "legal_sources":[{"law_name":"Fixture law", "provision":"later"}]});
+	let rule_set: RuleSet = serde_json::from_value(
+		json!({"rules":[{"deny":"true"},{"require":"false","policySources":[origin]}]}),
+	)
+	.unwrap();
+	let rules = RuleSets::from(vec![rule_set]);
+	let req = ::http::Request::builder()
+		.body(crate::http::Body::empty())
+		.unwrap();
+	let exec = Executor::new_request(&req);
+	assert!(!rules.validate(&exec));
+	assert!(rules.denial_sources(&exec).is_empty());
+}
+
+#[test]
+fn policy_attribution_does_not_credit_identical_later_rules_after_unattributed_failure() {
+	let origin = json!({"pack_id":"fixture", "pack_version":"1", "law_id":"LAW", "policy_id":"later", "function_id":"require", "function_index":0, "action":"allow", "legal_sources":[{"law_name":"Fixture law", "provision":"later"}]});
+	for mode in ["require", "deny"] {
+		let expression = if mode == "require" { "false" } else { "true" };
+		let mut first = serde_json::Map::new();
+		first.insert(mode.into(), json!(expression));
+		let mut later = first.clone();
+		later.insert("policySources".into(), json!([origin.clone()]));
+		let original: RuleSet = serde_json::from_value(json!({"rules":[first, later]})).unwrap();
+		let roundtrip: RuleSet =
+			serde_json::from_value(serde_json::to_value(&original).unwrap()).unwrap();
+		let req = ::http::Request::builder()
+			.body(crate::http::Body::empty())
+			.unwrap();
+		let exec = Executor::new_request(&req);
+		for rule_set in [original.clone(), original, roundtrip] {
+			let rules = RuleSets::from(vec![rule_set]);
+			assert!(!rules.validate(&exec));
+			assert!(rules.denial_sources(&exec).is_empty());
+		}
+	}
+}
+
 fn create_deny_policy_set(policies: Vec<&str>) -> PolicySet {
 	let mut policy_set = PolicySet::default();
 	for p in policies.into_iter() {

@@ -33,6 +33,13 @@ impl<'de> serde::Deserialize<'de> for RateLimit {
 
 #[apply(schema!)]
 pub struct RateLimitSpec {
+	/// Policy origins reported only when this particular bucket rejects a request.
+	#[serde(
+		default,
+		deserialize_with = "crate::http::policy_report::de_sources",
+		skip_serializing_if = "Vec::is_empty"
+	)]
+	pub policy_sources: Vec<crate::http::policy_report::PolicySource>,
 	/// Maximum number of tokens that can accumulate in the local bucket.
 	#[serde(default)]
 	pub max_tokens: u64,
@@ -268,7 +275,7 @@ impl crate::store::RequestPolicyTrait for Vec<RateLimit> {
 	async fn apply(
 		&self,
 		_client: &crate::proxy::httpproxy::PolicyClient,
-		_log: &mut crate::telemetry::log::RequestLog,
+		log: &mut crate::telemetry::log::RequestLog,
 		req: &mut http::Request,
 	) -> Result<http::PolicyResponse, crate::proxy::ProxyResponse> {
 		let exec = Executor::new_request(req);
@@ -282,6 +289,11 @@ impl crate::store::RequestPolicyTrait for Vec<RateLimit> {
 				},
 				Ok(None) => {},
 				Err(e) => {
+					log.guardrails.policy_decisions.record(
+						"reject",
+						"request",
+						&rate_limit.spec.policy_sources,
+					);
 					// The request is rejected, so it must not count against the rules that admitted it.
 					for bucket in taken {
 						bucket.refund();
@@ -312,6 +324,7 @@ mod policy_tests {
 
 	fn requests_limit(max: u64) -> RateLimit {
 		RateLimit::try_from(RateLimitSpec {
+			policy_sources: Vec::new(),
 			max_tokens: max,
 			tokens_per_fill: max,
 			fill_interval: std::time::Duration::from_secs(60),
@@ -323,6 +336,7 @@ mod policy_tests {
 
 	fn keyed_requests_limit(max: u64, key: &str) -> RateLimit {
 		RateLimit::try_from(RateLimitSpec {
+			policy_sources: Vec::new(),
 			max_tokens: max,
 			tokens_per_fill: max,
 			fill_interval: std::time::Duration::from_secs(60),
@@ -421,6 +435,7 @@ mod policy_tests {
 	#[test]
 	fn token_limits_are_charged_per_key() {
 		let rl = RateLimit::try_from(RateLimitSpec {
+			policy_sources: Vec::new(),
 			max_tokens: 10,
 			tokens_per_fill: 10,
 			fill_interval: std::time::Duration::from_secs(60),

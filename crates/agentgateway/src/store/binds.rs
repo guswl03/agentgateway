@@ -4396,6 +4396,7 @@ mod tests {
 			prompt_guard: Some(PromptGuard {
 				streaming: Default::default(),
 				request: vec![RequestGuard {
+					policy_sources: Vec::new(),
 					rejection: Default::default(),
 					scope: default_content_scope(),
 					kind: RequestGuardKind::Regex(RegexRules {
@@ -4444,6 +4445,7 @@ mod tests {
 				prompt_guard: Some(PromptGuard {
 					streaming: Default::default(),
 					request: vec![RequestGuard {
+						policy_sources: Vec::new(),
 						rejection: Default::default(),
 						scope: default_content_scope(),
 						kind: RequestGuardKind::Regex(RegexRules {

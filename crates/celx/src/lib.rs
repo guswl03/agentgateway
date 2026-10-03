@@ -4,6 +4,7 @@ use cel::Context;
 #[path = "benches.rs"]
 mod benches;
 mod cidr;
+mod fhir;
 mod flatten;
 mod general;
 mod math;
@@ -19,6 +20,7 @@ pub use optimize::DefaultOptimizer;
 pub fn insert_all(ctx: &mut Context) {
 	// General agentgateway additional functions
 	general::insert_all(ctx);
+	fhir::insert_all(ctx);
 	// "Strings" extension
 	// https://pkg.go.dev/github.com/google/cel-go/ext#Strings
 	strings::insert_all(ctx);

@@ -1,0 +1,189 @@
+{
+  "policy_packs": [
+    {
+      "pack_id": "KR_MEDICAL_ACT_GATEWAY_ONLY_PACK",
+      "version": "2.0.0-gateway-only-review",
+      "priority": 300,
+      "cards": [
+        {
+          "law_id": "KR_MEDICAL_ACT",
+          "policy_id": "KR_MEDICAL_INFECTION_REPORT_IDENTIFIERS_017_GW"
+        },
+        {
+          "law_id": "KR_MEDICAL_ACT_DECREE",
+          "policy_id": "KR_MEDICAL_TRANSFER_ACCESS_ROLE_022_GW"
+        },
+        {
+          "law_id": "KR_MEDICAL_ACT_DECREE",
+          "policy_id": "KR_MEDICAL_TRANSFER_AUTHENTICATION_023_GW"
+        },
+        {
+          "law_id": "KR_MEDICAL_ACT_DECREE",
+          "policy_id": "KR_MEDICAL_TRANSFER_ACCESS_LOG_024_GW"
+        },
+        {
+          "law_id": "KR_MEDICAL_ACT",
+          "policy_id": "KR_MEDICAL_AD_STOP_ORDER_029_GW"
+        }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "law_id": "KR_MEDICAL_ACT",
+      "policy_id": "KR_MEDICAL_INFECTION_REPORT_IDENTIFIERS_017_GW",
+      "policy_text": "관리자가 의료관련감염 자율보고의 검증 후 분석·활용용 전달 경로로 지정한 구조화 요청에서는 설정된 개인식별 필드를 Gateway에서 삭제하여 전달한다. 최초 보고 경로에는 적용하지 않는다.",
+      "function": [
+        {
+          "function_id": "AGW-BODY-HEADER-TRANSFORM-REQUEST",
+          "action": "remove_field",
+          "object": "IDENTIFIER_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "의료법",
+          "revision_no": "법률 제21490호",
+          "promulgation_date": "2026-03-24",
+          "effective_date": "2026-10-02",
+          "provision": "제47조제10항",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_MEDICAL_ACT_DECREE",
+      "policy_id": "KR_MEDICAL_TRANSFER_ACCESS_ROLE_022_GW",
+      "policy_text": "진료기록전송지원시스템의 지정 HTTP 경로에서는 이미 검증되는 보안 토큰의 역할·scope와 관리자가 설정한 고정 접근 규칙을 비교하여 요청을 허용하거나 거절한다.",
+      "function": [
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "authorize_require",
+          "object": "DATA_STORE"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "의료법 시행령",
+          "revision_no": "대통령령 제36083호",
+          "promulgation_date": "2026-02-10",
+          "effective_date": "2026-02-10",
+          "provision": "제10조의6제1항제2호",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283151&efYd=20260210"
+        },
+        {
+          "level": "LAW",
+          "law_name": "의료법",
+          "revision_no": "법률 제21490호",
+          "promulgation_date": "2026-03-24",
+          "effective_date": "2026-10-02",
+          "provision": "제21조의2제4항·제5항제1호",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_MEDICAL_ACT_DECREE",
+      "policy_id": "KR_MEDICAL_TRANSFER_AUTHENTICATION_023_GW",
+      "policy_text": "진료기록전송지원시스템의 지정 HTTP 경로는 설정된 발급자·공개키·대상 시스템·만료 검증을 통과한 JWT가 있는 요청만 전달한다.",
+      "function": [
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "require_jwt",
+          "object": "USER"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "의료법 시행령",
+          "revision_no": "대통령령 제36083호",
+          "promulgation_date": "2026-02-10",
+          "effective_date": "2026-02-10",
+          "provision": "제10조의6제1항제2호",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283151&efYd=20260210"
+        },
+        {
+          "level": "LAW",
+          "law_name": "의료법",
+          "revision_no": "법률 제21490호",
+          "promulgation_date": "2026-03-24",
+          "effective_date": "2026-10-02",
+          "provision": "제21조의2제5항제1호",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_MEDICAL_ACT_DECREE",
+      "policy_id": "KR_MEDICAL_TRANSFER_ACCESS_LOG_024_GW",
+      "policy_text": "진료기록전송지원시스템의 지정 경로를 통과하는 요청의 시각·경로·결과 등 Gateway 접속 이벤트를 기존 접속 로그 설정으로 기록한다.",
+      "function": [
+        {
+          "function_id": "AGW-ACCESS-LOG-TRACING",
+          "action": "log_access",
+          "object": "ACCESS_LOG"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "ENFORCEMENT_DECREE",
+          "law_name": "의료법 시행령",
+          "revision_no": "대통령령 제36083호",
+          "promulgation_date": "2026-02-10",
+          "effective_date": "2026-02-10",
+          "provision": "제10조의6제1항제6호",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=283151&efYd=20260210"
+        },
+        {
+          "level": "LAW",
+          "law_name": "의료법",
+          "revision_no": "법률 제21490호",
+          "promulgation_date": "2026-03-24",
+          "effective_date": "2026-10-02",
+          "provision": "제21조의2제5항제1호",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+        }
+      ],
+      "except": []
+    },
+    {
+      "law_id": "KR_MEDICAL_ACT",
+      "policy_id": "KR_MEDICAL_AD_STOP_ORDER_029_GW",
+      "policy_text": "관리자가 중지 대상으로 지정한 의료광고 게시·배포 HTTP 경로에는 고정 거절 규칙을 적용하여 백엔드 전달을 차단한다.",
+      "function": [
+        {
+          "function_id": "AGW-AUTH-AUTHZ-REQUEST",
+          "action": "authorize_require",
+          "object": "OUTPUT_DATA"
+        }
+      ],
+      "legal_sources": [
+        {
+          "level": "LAW",
+          "law_name": "의료법",
+          "revision_no": "법률 제21490호",
+          "promulgation_date": "2026-03-24",
+          "effective_date": "2026-10-02",
+          "provision": "제63조제2항제1호",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+        },
+        {
+          "level": "LAW",
+          "law_name": "의료법",
+          "revision_no": "법률 제21490호",
+          "promulgation_date": "2026-03-24",
+          "effective_date": "2026-10-02",
+          "provision": "제56조제2항·제3항",
+          "source_url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290667&efYd=20261002"
+        }
+      ],
+      "except": []
+    }
+  ]
+}

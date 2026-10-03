@@ -230,12 +230,21 @@ impl ConfigResourceStore {
 		&self,
 		prepared: Vec<PreparedResource>,
 	) -> anyhow::Result<ConfigResourcesResponse> {
+		self.upsert_prepared_checked(prepared, None).await
+	}
+
+	pub(crate) async fn upsert_prepared_checked(
+		&self,
+		prepared: Vec<PreparedResource>,
+		expected: Option<Vec<ConfigResource>>,
+	) -> anyhow::Result<ConfigResourcesResponse> {
 		let resources = match &self.pool {
-			DatabasePool::Sqlite(pool) => upsert_sqlite(pool, prepared).await?,
+			DatabasePool::Sqlite(pool) => upsert_sqlite(pool, prepared, expected.as_deref()).await?,
 			DatabasePool::Postgres(pool) => {
 				upsert_postgres(
 					pool,
 					prepared,
+					expected.as_deref(),
 					self
 						.notification_id
 						.as_deref()
@@ -1491,13 +1500,18 @@ async fn list_postgres(
 async fn upsert_sqlite(
 	pool: &SqlitePool,
 	prepared: Vec<PreparedResource>,
+	expected: Option<&[ConfigResource]>,
 ) -> anyhow::Result<Vec<ConfigResource>> {
 	let mut tx = pool.begin().await?;
 	let mut changed = Vec::with_capacity(prepared.len());
 	for PreparedResource { kind, id, value } in prepared {
 		validate_id(&id)?;
+		let revision = expected
+			.and_then(|items| items.iter().find(|r| r.kind == kind && r.id == id))
+			.map(|r| r.revision)
+			.unwrap_or(-1);
 		let now = Utc::now().to_rfc3339();
-		sqlx::query(
+		let written = sqlx::query(
 			"INSERT INTO agw_config_resources \
 			 (kind, id, value_json, revision, created_at, updated_at, deleted_at) \
 			 VALUES (?, ?, ?, 1, ?, ?, NULL) \
@@ -1505,15 +1519,24 @@ async fn upsert_sqlite(
 				value_json = excluded.value_json, \
 				revision = agw_config_resources.revision + 1, \
 				updated_at = excluded.updated_at, \
-				deleted_at = NULL",
+				deleted_at = NULL \
+			 WHERE (? OR (agw_config_resources.revision = ? AND agw_config_resources.deleted_at IS NULL) OR (? = -1 AND agw_config_resources.deleted_at IS NOT NULL))",
 		)
 		.bind(kind.as_str())
 		.bind(&id)
 		.bind(serde_json::to_string(&value)?)
 		.bind(&now)
 		.bind(&now)
+		.bind(expected.is_none())
+		.bind(revision)
+		.bind(revision)
 		.execute(&mut *tx)
 		.await?;
+		if written.rows_affected() != 1 {
+			return Err(
+				ConfigResourceError::Conflict("Policy resource changed during validation".into()).into(),
+			);
+		}
 		changed.push((kind, id));
 	}
 
@@ -1530,14 +1553,19 @@ async fn upsert_sqlite(
 async fn upsert_postgres(
 	pool: &PgPool,
 	prepared: Vec<PreparedResource>,
+	expected: Option<&[ConfigResource]>,
 	notification_id: &str,
 ) -> anyhow::Result<Vec<ConfigResource>> {
 	let mut tx = pool.begin().await?;
 	let mut changed = Vec::with_capacity(prepared.len());
 	for PreparedResource { kind, id, value } in prepared {
 		validate_id(&id)?;
+		let revision = expected
+			.and_then(|items| items.iter().find(|r| r.kind == kind && r.id == id))
+			.map(|r| r.revision)
+			.unwrap_or(-1);
 		let now = Utc::now();
-		sqlx::query(
+		let written = sqlx::query(
 			"INSERT INTO agw_config_resources \
 			 (kind, id, value_json, revision, created_at, updated_at, deleted_at) \
 			 VALUES ($1, $2, $3, 1, $4, $4, NULL) \
@@ -1545,14 +1573,22 @@ async fn upsert_postgres(
 				value_json = excluded.value_json, \
 				revision = agw_config_resources.revision + 1, \
 				updated_at = excluded.updated_at, \
-				deleted_at = NULL",
+				deleted_at = NULL \
+			 WHERE ($5 OR (agw_config_resources.revision = $6 AND agw_config_resources.deleted_at IS NULL) OR ($6 = -1 AND agw_config_resources.deleted_at IS NOT NULL))",
 		)
 		.bind(kind.as_str())
 		.bind(&id)
 		.bind(Json(value))
 		.bind(now)
+		.bind(expected.is_none())
+		.bind(revision)
 		.execute(&mut *tx)
 		.await?;
+		if written.rows_affected() != 1 {
+			return Err(
+				ConfigResourceError::Conflict("Policy resource changed during validation".into()).into(),
+			);
+		}
 		changed.push((kind, id));
 	}
 
@@ -2007,6 +2043,42 @@ mod tests {
 			)
 			.is_err()
 		);
+	}
+
+	#[tokio::test]
+	async fn policy_batch_rolls_back_on_stale_revision() {
+		let store = ConfigResourceStore::connect("sqlite::memory:", None)
+			.await
+			.unwrap();
+		let route = || PreparedResource {
+			kind: ConfigResourceKind::TrafficRoute,
+			id: "route".into(),
+			value: json!({"name":"route"}),
+		};
+		store.upsert_prepared(vec![route()]).await.unwrap();
+		let snapshot = store.list(None).await.unwrap();
+		store.upsert_prepared(vec![route()]).await.unwrap();
+		let added = || PreparedResource {
+			kind: ConfigResourceKind::LlmPolicy,
+			id: "transformations".into(),
+			value: json!({}),
+		};
+		assert!(
+			store
+				.upsert_prepared_checked(vec![added(), route()], Some(snapshot))
+				.await
+				.is_err()
+		);
+		let unchanged = store.list(None).await.unwrap();
+		assert_eq!(unchanged.len(), 1);
+		assert_eq!(unchanged[0].revision, 2);
+		store
+			.upsert_prepared_checked(vec![added(), route()], Some(unchanged))
+			.await
+			.unwrap();
+		let saved = store.list(None).await.unwrap();
+		assert_eq!(saved.len(), 2);
+		assert_eq!(saved.iter().find(|r| r.id == "route").unwrap().revision, 3);
 	}
 
 	#[tokio::test]

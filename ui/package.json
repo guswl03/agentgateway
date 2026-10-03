@@ -15,7 +15,9 @@
 		"preview": "pnpm build && vite preview",
 		"preview:e2e": "pnpm build --mode e2e && vite preview --mode e2e",
 		"test:e2e": "playwright test",
-		"typecheck": "pnpm generate-schema && tsc -b"
+		"typecheck": "pnpm generate-schema && tsc -b",
+		"test:policy": "node --test tests/unit/policyAdapter.test.mjs tests/unit/policyChoices.test.mjs tests/unit/policyExtensions.test.mjs tests/unit/policyFhir.test.mjs tests/unit/policyFhirAdapter.test.mjs tests/unit/policyNativeSetup.test.mjs tests/unit/policyOptoutAdapter.test.mjs tests/unit/policyQuick.test.mjs tests/unit/policyReadiness.test.mjs tests/unit/policyResponse.test.mjs tests/unit/policyShared.test.mjs",
+		"test:policy-ui": "node scripts/test-policy-ui.mjs"
 	},
 	"dependencies": {
 		"@fontsource-variable/noto-sans-kr": "5.3.0",

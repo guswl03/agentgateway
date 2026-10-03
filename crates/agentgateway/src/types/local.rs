@@ -249,6 +249,7 @@ fn merge_deprecated_frontend_policies(
 		let mut policies = if !headers.is_empty() {
 			let backend_xfm = transformation_cel::LocalTransformationConfig {
 				request: Some(transformation_cel::LocalTransform {
+					body_decisions: Vec::new(),
 					set: headers
 						.into_iter()
 						.map(|(k, v)| (strng::new(k), strng::new(v)))
@@ -2110,6 +2111,7 @@ fn ui_matches(oidc_redirect_path: Option<Strng>) -> Vec<RouteMatch> {
 		PathMatch::PathPrefix("/api/auth".into()),
 		PathMatch::PathPrefix("/ui".into()),
 		PathMatch::PathPrefix("/api/runtime".into()),
+		PathMatch::PathPrefix("/api/policy".into()),
 		PathMatch::PathPrefix("/api/config".into()),
 		PathMatch::PathPrefix("/api/cel".into()),
 		PathMatch::PathPrefix("/api/logs".into()),

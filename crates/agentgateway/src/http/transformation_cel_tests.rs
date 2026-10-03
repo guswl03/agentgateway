@@ -3,9 +3,54 @@ use itertools::Itertools;
 
 use super::*;
 
+#[test]
+fn policy_attribution_body_requires_actual_semantic_change_and_success() {
+	let origin = serde_json::json!({"pack_id":"fixture", "pack_version":"1", "law_id":"LAW", "policy_id":"remove", "function_id":"remove", "function_index":0, "action":"remove_field", "legal_sources":[{"law_name":"Fixture law", "provision":"one"}]});
+	for (before, expression, predicate, expect_notice) in [
+		(
+			r#"{"private":"value","keep":true}"#,
+			r#"toJson({"keep":true})"#,
+			"true",
+			true,
+		),
+		(
+			r#"{"keep":true}"#,
+			r#"toJson({"keep":true})"#,
+			"true",
+			false,
+		),
+		(
+			r#"{"private":"value","keep":true}"#,
+			r#"toJson({"keep":true})"#,
+			"false",
+			false,
+		),
+		(r#"{"private":"value","keep":true}"#, "1/0", "true", false),
+	] {
+		let config:LocalTransformationConfig=serde_json::from_value(serde_json::json!({"request":{"body":expression,"bodyDecisions":[{"action":"remove_field","changedWhen":predicate,"policySources":[origin.clone()]}]}})).unwrap();
+		let transformation = Transformation::try_from_local_config(config, true).unwrap();
+		let mut req = ::http::Request::builder()
+			.body(crate::http::Body::from(before.to_owned()))
+			.unwrap();
+		let decisions = crate::http::policy_report::PolicyDecisionLog::default();
+		Transformation::apply(
+			(&mut req).into(),
+			&transformation.request,
+			None,
+			Some(&decisions),
+		);
+		assert_eq!(
+			decisions.report().is_some(),
+			expect_notice,
+			"{before} -> {expression} ({predicate})"
+		);
+	}
+}
+
 fn build<const N: usize>(items: [(&str, &str); N]) -> Transformation {
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			add: items
 				.iter()
 				.map(|(k, v)| (strng::new(k), strng::new(v)))
@@ -40,6 +85,7 @@ async fn test_transformation_body() {
 	let c = super::LocalTransformationConfig {
 		request: None,
 		response: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			body: Some("\"hello\" + request.method".into()),
 			..Default::default()
 		}),
@@ -70,6 +116,7 @@ async fn test_transformation_form_urlencoded_body_merge() {
 
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			body: Some(
 				r#"
 request.path == "/oauth/devicecode" ?
@@ -142,6 +189,7 @@ async fn test_transformation_response_json_body_rewrite() {
 	let c = super::LocalTransformationConfig {
 		request: None,
 		response: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			body: Some(
 				r#"
 json(response.body).with(body,
@@ -226,6 +274,7 @@ fn test_transformation_replace_headers() {
 		.unwrap();
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			replace: Some(r#"{"x-kept": request.headers["x-keep-src"], "x-static": "hi"}"#.into()),
 			..Default::default()
 		}),
@@ -249,6 +298,7 @@ fn test_transformation_replace_then_set_overrides() {
 		.unwrap();
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			replace: Some(r#"{"x-a": "from-replace", "x-b": "b"}"#.into()),
 			set: vec![("x-a".into(), r#""from-set""#.into())],
 			..Default::default()
@@ -272,6 +322,7 @@ fn test_transformation_replace_repeated_header() {
 		.unwrap();
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			replace: Some(r#"{"x-multi": ["a", "b"]}"#.into()),
 			..Default::default()
 		}),
@@ -297,6 +348,7 @@ fn test_transformation_replace_ignores_pseudo_headers() {
 		.unwrap();
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			replace: Some(r#"{":method": "POST", "x-real": "y"}"#.into()),
 			..Default::default()
 		}),
@@ -320,6 +372,7 @@ fn test_transformation_replace_non_map_leaves_headers() {
 		.unwrap();
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			replace: Some(r#""not a map""#.into()),
 			..Default::default()
 		}),
@@ -340,6 +393,7 @@ fn test_transformation_metadata() {
 		.unwrap();
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			metadata: vec![
 				("originalPath".into(), "request.path".into()),
 				("isGet".into(), "request.method == 'GET'".into()),
@@ -374,6 +428,7 @@ fn test_response_transformation_metadata_available_to_headers() {
 		.unwrap();
 	let c = super::LocalTransformationConfig {
 		request: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			metadata: vec![
 				("requestVal".into(), r#""from-request""#.into()),
 				("shared".into(), r#""request""#.into()),
@@ -381,6 +436,7 @@ fn test_response_transformation_metadata_available_to_headers() {
 			..Default::default()
 		}),
 		response: Some(super::LocalTransform {
+			body_decisions: Vec::new(),
 			metadata: vec![
 				("staticVal".into(), r#""hello-world""#.into()),
 				("copied".into(), "metadata.requestVal".into()),
